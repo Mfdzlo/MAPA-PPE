@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Mapa postapocalíptico de la región dew PKMN Primera Era">
+
+  <title>Mapa de PKMN Primera Era</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oswald:wght@300;400;600&display=swap" rel="stylesheet"/>
+  
+  <style>
+    :root {
+      --bg:       #0a0a07;
+      --panel:    #111109;
+      --border:   #3a3520;
+      --accent:   #c8a84b;
+      --accent2:  #e05c2a;
+      --danger:   #cc2222;
+      --text:     #d4c89a;
+      --text-dim: #7a6e50;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* HEADER */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px; border-bottom: 1px solid var(--border);
+      background: var(--panel); flex-shrink: 0; gap: 12px;
+      z-index: 1000; position: relative;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-title {
+      font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600;
+      letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; white-space: nowrap;
+    }
+    .header-title span { color: var(--accent2); }
+    .header-search {
+      display: flex; align-items: center; gap: 6px;
+      background: #1a1a12; border: 1px solid var(--border); border-radius: 3px; padding: 5px 10px;
+    }
+    .header-search input {
+      background: transparent; border: none; outline: none;
+      font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text); width: 160px;
+    }
+    .header-search input::placeholder { color: var(--text-dim); }
+    .header-coords { font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+    .search-results {
+      position: absolute; top: calc(100% + 4px); left: 220px;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+      min-width: 200px; z-index: 2000; display: none; box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    }
+    .search-results.visible { display: block; }
+    .search-result-item {
+      padding: 8px 12px; font-size: 12px; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid var(--border); transition: background 0.1s;
+    }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item:hover { background: #1e1e14; }
+    .sri-name { color: var(--text); }
+    .sri-cat { font-size: 10px; color: var(--text-dim); margin-left: auto; }
+
+    /* LAYOUT */
+    .main { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 280px; min-width: 280px; background: var(--panel);
+      border-right: 1px solid var(--border); display: flex; flex-direction: column;
+      overflow: hidden; transition: transform 0.25s ease, width 0.25s ease, min-width 0.25s ease; z-index: 100;
+    }
+    .sidebar.collapsed { transform: translateX(-100%); width: 0; min-width: 0; }
+    .sidebar-toggle {
+      position: absolute; left: 280px; top: 50%; transform: translateY(-50%);
+      z-index: 200; background: var(--panel); border: 1px solid var(--border); border-left: none;
+      color: var(--text-dim); font-size: 12px; padding: 8px 5px; cursor: pointer;
+      border-radius: 0 3px 3px 0; transition: left 0.25s ease; line-height: 1;
+    }
+    .sidebar-toggle:hover { color: var(--accent); }
+    .sidebar-section { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .sidebar-title {
+      font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 0.2em;
+      color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px;
+    }
+    .icon-btn {
+      background: transparent; border: 1px solid var(--border); border-radius: 3px;
+      padding: 3px 7px; cursor: pointer; font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; color: var(--text-dim); transition: all 0.15s; white-space: nowrap;
+    }
+    .icon-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+    .icon-btn.select-all:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Filter buttons */
+    .filter-btn {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      background: #2a2a22; border: 1px solid #2a2a22; border-radius: 3px;
+      padding: 7px 10px; margin-bottom: 6px; cursor: pointer;
+      font-family: 'Share Tech Mono', monospace; font-size: 12px;
+      transition: all 0.15s; text-align: left; opacity: 0.55;
+    }
+    .filter-btn:hover { opacity: 0.8; }
+    .filter-btn.active { background: #2a2a22; border-color: currentColor; opacity: 1; }
+    .filter-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .filter-count { margin-left: auto; font-size: 10px; opacity: 0.7; }
+    .filter-btn.active .filter-count { opacity: 1; }
+
+    /* Toggles */
+    .fog-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; color: var(--text-dim); padding: 4px 0; margin-bottom: 6px;
+    }
+    .toggle-switch {
+      width: 32px; height: 16px; background: #2a2a22; border-radius: 8px;
+      cursor: pointer; position: relative; border: 1px solid var(--border);
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .toggle-switch.on { background: var(--accent); border-color: var(--accent); }
+    .toggle-switch::after {
+      content: ''; position: absolute; width: 10px; height: 10px; border-radius: 50%;
+      background: var(--text-dim); top: 2px; left: 2px; transition: left 0.2s, background 0.2s;
+    }
+    .toggle-switch.on::after { left: 18px; background: var(--bg); }
+
+    /* Info panel */
+    .info-panel { flex: 1; overflow-y: auto; padding: 14px 16px; }
+    .info-panel::-webkit-scrollbar { width: 4px; }
+    .info-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .info-empty { color: var(--text-dim); font-size: 11px; line-height: 1.7; }
+    .info-name { font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
+    .info-cat { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; }
+    .info-desc { font-size: 12px; line-height: 1.7; color: var(--text); }
+    .info-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .info-stat { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; color: var(--text-dim); }
+    .info-stat span:last-child { color: var(--text); }
+    .info-img { width: 100%; border-radius: 3px; margin-bottom: 10px; border: 1px solid var(--border); display: block; }
+
+    /* Notes textarea */
+    .notes-area {
+      width: 100%; background: #1a1a12; border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text); font-family: 'Share Tech Mono', monospace; font-size: 11px;
+      padding: 7px 9px; resize: vertical; min-height: 64px; margin-top: 6px;
+      outline: none; line-height: 1.6;
+    }
+    .notes-area:focus { border-color: var(--accent); }
+    .notes-area::placeholder { color: var(--text-dim); }
+    .notes-save {
+      margin-top: 5px; padding: 4px 10px; font-size: 10px;
+      background: transparent; border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text-dim); cursor: pointer; font-family: 'Share Tech Mono', monospace;
+      transition: all 0.15s; float: right;
+    }
+    .notes-save:hover { border-color: var(--accent); color: var(--accent); }
+    .notes-saved { border-color: var(--accent) !important; color: var(--accent) !important; }
+
+    /* History */
+    .history-item {
+      display: flex; align-items: center; gap: 8px; padding: 5px 0;
+      border-bottom: 1px solid var(--border); cursor: pointer; font-size: 11px;
+      color: var(--text-dim); transition: color 0.1s;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-item:hover { color: var(--text); }
+    .history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* MAP */
+    #map { flex: 1; cursor: crosshair; position: relative; }
+    .leaflet-container { background: #0d0d09; }
+    /* Darken only the image overlay so markers and UI stay bright */
+    .leaflet-image-layer { filter: brightness(0.65) contrast(1) !important; }
+    .leaflet-control-zoom a {
+      background: var(--panel) !important; color: var(--accent) !important;
+      border-color: var(--border) !important; font-family: 'Oswald', sans-serif !important;
+    }
+    .leaflet-control-zoom a:hover { background: var(--border) !important; }
+
+    /* Popup */
+    .leaflet-popup-content-wrapper {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 4px; box-shadow: 0 4px 24px rgba(0,0,0,0.7);
+    }
+    .leaflet-popup-tip { background: var(--panel); }
+    .leaflet-popup-content {
+      font-family: 'Share Tech Mono', monospace; color: var(--text);
+      font-size: 12px; margin: 10px 14px; min-width: 160px;
+    }
+    .popup-name { font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .popup-cat { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+    .popup-desc { font-size: 11px; line-height: 1.6; color: var(--text); }
+
+    /* Fog of war */
+    #fogCanvas {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 400; opacity: 0.70; transition: opacity 0.4s;
+    }
+    #fogCanvas.hidden { opacity: 0; }
+
+    /* Scanlines */
+    #map::after {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+      pointer-events: none; z-index: 500;
+    }
+
+    /* Hazard pulse */
+    @keyframes hazardPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(204,34,34,0.7), 0 2px 12px rgba(204,34,34,0.3); }
+      70%  { box-shadow: 0 0 0 10px rgba(204,34,34,0), 0 2px 12px rgba(204,34,34,0.3); }
+      100% { box-shadow: 0 0 0 0 rgba(204,34,34,0), 0 2px 12px rgba(204,34,34,0.3); }
+    }
+
+    /* City label */
+    .city-label {
+      background: transparent !important; border: none !important;
+      font-family: 'Oswald', sans-serif; font-size: 11px; color: #c8a84b;
+      text-shadow: 0 1px 4px #000, 0 0 8px rgba(0,0,0,0.9);
+      letter-spacing: 0.08em; white-space: nowrap; pointer-events: none;
+    }
+
+    /* Hidden marker (???) */
+    .hidden-marker-icon {
+      width: 30px; height: 30px; border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg); background: rgba(42,42,34,0.85); border: 2px solid var(--text-dim);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.10);
+      backdrop-filter: blur(2px);
+    }
+    .hidden-marker-inner { transform: rotate(45deg); font-size: 12px; color: var(--text-dim); }
+
+    /* Reveal button */
+    .reveal-btn {
+      margin-top: 10px; width: 100%; padding: 7px; font-size: 11px;
+      background: transparent; border: 1px solid var(--accent); border-radius: 3px;
+      color: var(--accent); cursor: pointer; font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 0.08em; transition: all 0.15s;
+    }
+    .reveal-btn:hover { background: var(--accent); color: var(--bg); }
+
+    /* Status bar */
+    .statusbar {
+      padding: 5px 16px; font-size: 10px; color: var(--text-dim);
+      background: var(--panel); border-top: 1px solid var(--border);
+      display: flex; gap: 20px; flex-shrink: 0; align-items: center;
+    }
+    .statusbar .blink { color: var(--accent2); animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 36px; right: 16px;
+      background: var(--panel); border: 1px solid var(--accent); border-radius: 4px;
+      padding: 8px 14px; font-size: 11px; color: var(--accent); z-index: 9999;
+      opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    /* Password modal */
+    .pwd-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      z-index: 9000; display: flex; align-items: center; justify-content: center;
+    }
+    .pwd-overlay.hidden { display: none; }
+    .pwd-box {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 6px; padding: 24px 28px; min-width: 280px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.8);
+    }
+    .pwd-title {
+      font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600;
+      color: var(--accent); margin-bottom: 4px; letter-spacing: 0.1em;
+    }
+    .pwd-subtitle { font-size: 11px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.6; }
+    .pwd-input {
+      width: 100%; background: #1a1a12; border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text); font-family: 'Share Tech Mono', monospace; font-size: 13px;
+      padding: 8px 10px; outline: none; margin-bottom: 10px; letter-spacing: 0.1em;
+    }
+    .pwd-input:focus { border-color: var(--accent); }
+    .pwd-input.error { border-color: var(--danger); animation: shake 0.3s ease; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25%      { transform: translateX(-6px); }
+      75%      { transform: translateX(6px); }
+    }
+    @keyframes routeDash {
+      to { stroke-dashoffset: -28; }
+    }
+    @keyframes routeDash2 {
+      to { stroke-dashoffset: 24; }
+    }
+    /* Zombie horde marker */
+    .horde-marker {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(20,8,8,0.85);
+      border: 2px solid #8b0000;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(139,0,0,0.3), 0 2px 14px rgba(139,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.08);
+      backdrop-filter: blur(2px);
+      animation: hordePulse 2s ease-in-out infinite;
+    }
+    .horde-inner { font-size: 17px; line-height:1; filter: drop-shadow(0 0 4px rgba(200,0,0,0.9)); }
+    .horde-count {
+      position: absolute; top: -5px; right: -5px;
+      background: #8b0000; color: #fff;
+      font-family: 'Share Tech Mono', monospace; font-size: 9px;
+      border-radius: 8px; padding: 1px 4px; line-height: 1.4;
+      border: 1px solid rgba(255,255,255,0.2);
+      pointer-events: none;
+    }
+    @keyframes hordePulse {
+      0%,100% { box-shadow: 0 0 0 3px rgba(139,0,0,0.3), 0 2px 14px rgba(139,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.08); }
+      50%      { box-shadow: 0 0 0 8px rgba(139,0,0,0.0), 0 2px 20px rgba(200,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.08); }
+    }
+    .pwd-error { font-size: 11px; color: var(--danger); margin-bottom: 10px; display: none; }
+    .pwd-error.visible { display: block; }
+    .pwd-btns { display: flex; gap: 8px; }
+    .pwd-btn {
+      flex: 1; padding: 7px; font-size: 11px; border-radius: 3px; cursor: pointer;
+      font-family: 'Share Tech Mono', monospace; letter-spacing: 0.06em; transition: all 0.15s;
+    }
+    .pwd-btn-confirm {
+      background: transparent; border: 1px solid var(--accent); color: var(--accent);
+    }
+    .pwd-btn-confirm:hover { background: var(--accent); color: var(--bg); }
+    .pwd-btn-cancel {
+      background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    }
+    .pwd-btn-cancel:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── UNLOCK POPUP ────────────────────────── */
+    .unlock-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.60);
+      z-index: 9500; display: flex; align-items: center; justify-content: center;
+      animation: fadeInOverlay 0.25s ease;
+    }
+    .unlock-overlay.hidden { display: none; }
+    @keyframes fadeInOverlay {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    .unlock-box {
+      background: var(--panel); border: 1px solid var(--accent);
+      border-radius: 6px; padding: 0; min-width: 320px; max-width: 420px; width: 90%;
+      box-shadow: 0 0 40px rgba(200,168,75,0.25), 0 8px 40px rgba(0,0,0,0.85);
+      animation: unlockPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative; overflow: hidden;
+    }
+    @keyframes unlockPop {
+      from { transform: scale(0.80); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+    .unlock-banner {
+      background: linear-gradient(90deg, #1a1800, #2a2200, #1a1800);
+      border-bottom: 1px solid var(--accent);
+      padding: 14px 18px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative;
+    }
+    .unlock-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(90deg, transparent, transparent 12px, rgba(200,168,75,0.04) 12px, rgba(200,168,75,0.04) 13px);
+      pointer-events: none;
+    }
+    .unlock-title {
+      font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 600;
+      color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase;
+      text-shadow: 0 0 18px rgba(200,168,75,0.5);
+    }
+    .unlock-close-btn {
+      background: transparent; border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text-dim); font-size: 13px; width: 26px; height: 26px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; flex-shrink: 0; z-index: 1; position: relative;
+      font-family: 'Share Tech Mono', monospace;
+    }
+    .unlock-close-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+    .unlock-body { padding: 16px 18px 18px; }
+    .unlock-loc-name {
+      font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .unlock-loc-cat {
+      font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 12px;
+    }
+    .unlock-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .unlock-desc { font-size: 12px; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
+    .unlock-stat { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; color: var(--text-dim); }
+    .unlock-stat span:last-child { color: var(--text); }
+    .unlock-footer {
+      display: flex; justify-content: flex-end; margin-top: 14px;
+    }
+    .unlock-continue-btn {
+      padding: 7px 18px; font-size: 11px; border-radius: 3px; cursor: pointer;
+      font-family: 'Share Tech Mono', monospace; letter-spacing: 0.08em;
+      background: transparent; border: 1px solid var(--accent); color: var(--accent);
+      transition: all 0.15s;
+    }
+    .unlock-continue-btn:hover { background: var(--accent); color: var(--bg); }
+    @keyframes unlockGlow {
+      0%,100% { box-shadow: 0 0 20px rgba(200,168,75,0.15), 0 8px 40px rgba(0,0,0,0.85); }
+      50%      { box-shadow: 0 0 40px rgba(200,168,75,0.35), 0 8px 40px rgba(0,0,0,0.85); }
+    }
+    .unlock-box { animation: unlockPop 0.3s cubic-bezier(0.34,1.56,0.64,1), unlockGlow 2s ease-in-out 0.3s infinite; }
+
+    /* ── HORDE COUNT ANIMATION ───────────────── */
+    .horde-count-animated {
+      transition: transform 0.2s ease, color 0.3s ease;
+    }
+    .horde-count-animated.up   { color: #ff6666; transform: scale(1.3) translateY(-1px); }
+    .horde-count-animated.down { color: #aaaaaa; transform: scale(0.85) translateY(1px); }
+
+    /* ── ROUTE INFO POPUP ────────────────────── */
+    .route-popup-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      z-index: 8500; display: flex; align-items: center; justify-content: center;
+      animation: fadeInOverlay 0.2s ease;
+    }
+    .route-popup-overlay.hidden { display: none; }
+    .route-popup-box {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 6px; min-width: 300px; max-width: 400px; width: 90%;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.85);
+      animation: unlockPop 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      overflow: hidden;
+    }
+    .route-popup-header {
+      background: linear-gradient(90deg, #0d1218, #111820, #0d1218);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .route-popup-title {
+      font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600;
+      color: #d4c89a; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .route-popup-close {
+      background: transparent; border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text-dim); font-size: 12px; width: 24px; height: 24px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; font-family: 'Share Tech Mono', monospace;
+    }
+    .route-popup-close:hover { border-color: var(--accent2); color: var(--accent2); }
+    .route-popup-body { padding: 14px 16px 16px; }
+    .route-stat { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; color: var(--text-dim); padding: 5px 0; border-bottom: 1px solid rgba(58,53,32,0.5); }
+    .route-stat:last-of-type { border-bottom: none; }
+    .route-stat span:last-child { color: var(--text); }
+    .route-desc { font-size: 11px; line-height: 1.7; color: var(--text-dim); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .route-danger-badge {
+      display: inline-block; padding: 1px 7px; border-radius: 2px; font-size: 10px;
+      letter-spacing: 0.08em; font-family: 'Oswald', sans-serif;
+    }
+    .danger-bajo    { background: rgba(75,200,122,0.15); color: #4bc87a; border: 1px solid #4bc87a44; }
+    .danger-medio   { background: rgba(200,168,75,0.15); color: #c8a84b; border: 1px solid #c8a84b44; }
+    .danger-alto    { background: rgba(204,34,34,0.15);  color: #cc2222; border: 1px solid #cc222244; }
+    .danger-critico { background: rgba(204,34,34,0.25);  color: #ff4444; border: 1px solid #ff444466; animation: blink 1.2s step-end infinite; }
+    .transporte-si  { color: #4bc87a; }
+    .transporte-no  { color: #cc4444; }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-title">MAPA <span>//</span> ZONA CERO</div>
+    <div class="header-search">
+      <span style="color:var(--text-dim);font-size:13px">⌕</span>
+      <input type="text" id="searchInput" placeholder="Buscar ubicación..."/>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <div class="header-coords" id="coordsDisplay">LAT —&nbsp;&nbsp;LNG —</div>
+</header>
+
+<div class="main">
+  <aside class="sidebar" id="sidebar">
+
+    <!-- CATEGORÍAS -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">// Categorías</div>
+      <div style="display:flex;gap:5px;margin-bottom:10px">
+        <button class="icon-btn select-all" id="selectAllBtn" style="flex:1;text-align:center">+ Todo</button>
+        <button class="icon-btn" id="clearSelBtn" style="flex:1;text-align:center">✕ Limpiar</button>
+      </div>
+      <button class="filter-btn active" data-cat="ciudad" style="color:#c8a84b">
+        <span class="filter-dot" style="background:#c8a84b"></span>Ciudades
+        <span class="filter-count" id="cnt-ciudad">0</span>
+      </button>
+      <button class="filter-btn active" data-cat="poi" style="color:#4baec8">
+        <span class="filter-dot" style="background:#4baec8"></span>Puntos de interés
+        <span class="filter-count" id="cnt-poi">0</span>
+      </button>
+      <button class="filter-btn active" data-cat="peligro" style="color:#cc2222">
+        <span class="filter-dot" style="background:#cc2222"></span>Zonas de peligro
+        <span class="filter-count" id="cnt-peligro">0</span>
+      </button>
+      <button class="filter-btn active" data-cat="refugio" style="color:#4bc87a">
+        <span class="filter-dot" style="background:#4bc87a"></span>Refugios
+        <span class="filter-count" id="cnt-refugio">0</span>
+      </button>
+      <button class="filter-btn active" data-cat="ruinas" style="color:#9b7dc8">
+        <span class="filter-dot" style="background:#9b7dc8"></span>Ruinas
+        <span class="filter-count" id="cnt-ruinas">0</span>
+      </button>
+    </div>
+
+    <!-- OPCIONES DE VISTA -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">// Vista</div>
+      <div class="fog-toggle">
+        <span>Niebla de guerra</span>
+        <div class="toggle-switch" id="fogToggle"></div>
+      </div>
+      <div class="fog-toggle">
+        <span style="display:flex;align-items:center;gap:6px"><span>🛤</span> Rutas</span>
+        <div class="toggle-switch on" id="routeToggle"></div>
+      </div>
+      <div class="fog-toggle" style="opacity:0.5;cursor:not-allowed" title="Las hordas siempre son visibles">
+        <span style="display:flex;align-items:center;gap:6px"><span>🧟</span> Hordas zombie</span>
+        <div class="toggle-switch on" style="pointer-events:none"></div>
+      </div>
+    </div>
+
+    <!-- SELECCIÓN -->
+    <div class="info-panel" id="infoPanel">
+      <p class="info-empty">Haz clic en un marcador del mapa para ver su información.</p>
+    </div>
+
+  </aside>
+
+  <button class="sidebar-toggle" id="sidebarToggle">◀</button>
+
+  <div id="map">
+    <canvas id="fogCanvas" class="hidden"></canvas>
+  </div>
+</div>
+
+<div class="statusbar">
+  <span><span class="blink">▮</span> SISTEMA ACTIVO</span>
+  <span id="markerCount">MARCADORES: 0</span>
+  <span>ZOOM: <span id="zoomLevel">—</span></span>
+  <span id="permalinkStatus" style="margin-left:auto;cursor:pointer;color:var(--text-dim)">⛓ permalink</span>
+</div>
+
+<div class="pwd-overlay hidden" id="pwdOverlay">
+  <div class="pwd-box">
+    <div class="pwd-title">🔒 UBICACIÓN CLASIFICADA</div>
+    <div class="pwd-subtitle" id="pwdSubtitle">Introduce la contraseña para revelar esta localización.</div>
+    <input class="pwd-input" type="password" id="pwdInput" placeholder="Contraseña..." autocomplete="off"/>
+    <div class="pwd-error" id="pwdError">⚠ Contraseña incorrecta</div>
+    <div class="pwd-btns">
+      <button class="pwd-btn pwd-btn-confirm" id="pwdConfirm">▶ DESBLOQUEAR</button>
+      <button class="pwd-btn pwd-btn-cancel" id="pwdCancel">✕ Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="unlock-overlay hidden" id="unlockOverlay">
+  <div class="unlock-box" id="unlockBox">
+    <div class="unlock-banner">
+      <div class="unlock-title">⚡ ¡PUNTO DESBLOQUEADO!</div>
+      <button class="unlock-close-btn" id="unlockCloseBtn">✕</button>
+    </div>
+    <div class="unlock-body" id="unlockBody">
+      <!-- filled dynamically -->
+    </div>
+  </div>
+</div>
+
+<div class="route-popup-overlay hidden" id="routePopupOverlay">
+  <div class="route-popup-box">
+    <div class="route-popup-header">
+      <div class="route-popup-title" id="routePopupTitle">🛤 RUTA</div>
+      <button class="route-popup-close" id="routePopupClose">✕</button>
+    </div>
+    <div class="route-popup-body" id="routePopupBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+//  CONFIGURACIÓN
+// ═══════════════════════════════════════════════
+
+const MAP_IMAGE_URL = "https://i.ibb.co/QyHWzVh/MAPA-Prueba.png";
+const MAP_WIDTH  = 2048;
+const MAP_HEIGHT = 1536;
+
+// oculto: true → aparece como "???" hasta que el usuario lo revela
+const MARCADORES = [
+  { nombre: "Nueva Kashar",      cat: "ciudad",  y: 380, x: 310, oculto: false,
+    desc: "La mayor asentamiento superviviente. Murallas de acero reciclado y un mercado negro que nunca cierra.",
+    imagen: null, poblacion: "~4.200 hab.", estado: "Controlada" },
+  { nombre: "Fuerte Drelm",      cat: "ciudad",  y: 600, x: 720, oculto: false,
+    desc: "Antigua base militar convertida en ciudad-estado. Gobierno autoritario pero agua potable garantizada.",
+    imagen: null, poblacion: "~1.800 hab.", estado: "Militarizada" },
+  { nombre: "Torre de Vigía 7",  cat: "poi",     y: 250, x: 550, oculto: false,
+    desc: "Torre de comunicaciones todavía operativa. Desde aquí se pueden interceptar señales de radio antiguas.",
+    imagen: null, estado: "Accesible" },
+  { nombre: "Depósito Omega",    cat: "poi",     y: 700, x: 400, oculto: true,
+    desc: "Almacén preapocalíptico con suministros médicos. Sellado herméticamente. Requiere código de acceso.",
+    imagen: null, estado: "Sellado" },
+  { nombre: "Zona Cero",         cat: "peligro", y: 480, x: 500, oculto: false,
+    desc: "Epicentro de la primera detonación. Radiación letal. Nadie que haya entrado ha vuelto a salir.",
+    imagen: null, nivel: "CRÍTICO", estado: "Prohibido" },
+  { nombre: "Pantano Ácido",     cat: "peligro", y: 750, x: 600, oculto: true,
+    desc: "Lluvia ácida acumulada durante años. La niebla corroe el metal en horas. Evitar a toda costa.",
+    imagen: null, nivel: "ALTO", estado: "Zona roja", clave: "acido5" },
+  { nombre: "Bunker S-12",       cat: "refugio", y: 200, x: 200, oculto: false,
+    desc: "Refugio subterráneo con capacidad para 80 personas. Generador diésel y filtros de aire todavía funcionales.",
+    imagen: null, capacidad: "80 personas", estado: "Operativo" },
+  { nombre: "La Cueva del Río",  cat: "refugio", y: 650, x: 250, oculto: false,
+    desc: "Refugio natural en un sistema de cuevas junto a un río subterráneo. Agua limpia disponible.",
+    imagen: null, capacidad: "~30 personas", estado: "Libre" },
+  { nombre: "Central Nuclear “Artemis”", cat: "ruinas",  y: 262, x: 216, oculto: true,
+    desc: "Antigua planta de energía avanzada. El sistema de refrigeración falló durante el colapso. Ahora el núcleo sigue activo de forma inestable.",
+    imagen: null, era: "Pre-colapso", estado: "Inestable", clave: "artemis2711" },
+  { nombre: "Ruinas de Elvanth", cat: "ruinas",  y: 350, x: 750, oculto: false,
+    desc: "Lo que queda de la antigua capital. Los edificios aún guardan secretos del mundo anterior.",
+    imagen: null, era: "Pre-colapso", estado: "Inestable" },
+  { nombre: "Complejo Industrial",cat: "ruinas", y: 550, x: 350, oculto: true,
+    desc: "Antigua fábrica de armamento. Peligro de derrumbe. Se dice que aún quedan armas funcionales en los sótanos.",
+    imagen: null, era: "Pre-colapso", estado: "Peligroso", clave: "fabrica" },
+];
+
+// [índice A, índice B] — rutas entre marcadores
+// (ya no se usan las rutas antiguas, se definen abajo las nuevas)
+const RUTAS = [];
+
+const CAT_CONFIG = {
+  ciudad:  { color: "#c8a84b", emoji: "🏙", label: "Ciudad"           },
+  poi:     { color: "#4baec8", emoji: "📡", label: "Punto de interés"  },
+  peligro: { color: "#cc2222", emoji: "☢",  label: "Zona de peligro"   },
+  refugio: { color: "#4bc87a", emoji: "⛺", label: "Refugio"           },
+  ruinas:  { color: "#9b7dc8", emoji: "🏚", label: "Ruinas"            },
+};
+
+// ═══════════════════════════════════════════════
+//  ESTADO PERSISTENTE (notas + revelados)
+// ═══════════════════════════════════════════════
+function loadState() {
+  try { return JSON.parse(localStorage.getItem('mapaState') || '{}'); } catch(e) { return {}; }
+}
+function saveState(s) {
+  try { localStorage.setItem('mapaState', JSON.stringify(s)); } catch(e) {}
+}
+const STATE = loadState();
+if (!STATE.notes)    STATE.notes    = {};
+if (!STATE.revealed) STATE.revealed = {};
+// Reset revealed markers on each reload
+STATE.revealed = {};
+
+// ═══════════════════════════════════════════════
+//  MAPA
+// ═══════════════════════════════════════════════
+const bounds = [[0,0],[1000, 1000 * MAP_WIDTH / MAP_HEIGHT]];
+const map = L.map('map', {
+  crs: L.CRS.Simple, minZoom: -2, maxZoom: 3,
+  zoomControl: true, attributionControl: false,
+});
+L.imageOverlay(MAP_IMAGE_URL, bounds).addTo(map);
+map.fitBounds(bounds);
+
+map.on('mousemove', e => {
+  document.getElementById('coordsDisplay').textContent =
+    `LAT ${e.latlng.lat.toFixed(1)}  LNG ${e.latlng.lng.toFixed(1)}`;
+});
+map.on('zoomend', () => {
+  document.getElementById('zoomLevel').textContent = map.getZoom();
+  drawFog();
+});
+document.getElementById('zoomLevel').textContent = map.getZoom();
+
+// ── RUTAS ANIMADAS ───────────────────────────
+const routeLayer = L.layerGroup().addTo(map);
+
+// Genera puntos intermedios para simular una curva de Bézier cuadrática
+function bezierPoints(y0, x0, cy, cx, y1, x1, steps) {
+  const pts = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const mt = 1 - t;
+    pts.push([
+      mt*mt*y0 + 2*mt*t*cy + t*t*y1,
+      mt*mt*x0 + 2*mt*t*cx + t*t*x1
+    ]);
+  }
+  return pts;
+}
+
+function crearRutaCurva(puntos, color, dashArray, animClass, rutaData) {
+  // Base tenue
+  const base = L.polyline(puntos, { color, weight: 3, opacity: 0.12 });
+  base.addTo(routeLayer);
+  // Ruta animada
+  const pl = L.polyline(puntos, {
+    color, weight: 1.8, opacity: 0.75,
+    dashArray, className: animClass,
+  });
+  pl.addTo(routeLayer);
+  // Zona invisible de hit más ancha para facilitar el clic
+  const hit = L.polyline(puntos, { color: 'transparent', weight: 14, opacity: 0, interactive: true });
+  hit.addTo(routeLayer);
+
+  if (rutaData) {
+    const openPopup = () => showRoutePopup(rutaData);
+    pl.on('click', openPopup);
+    hit.on('click', openPopup);
+    hit.on('mouseover', () => { pl.setStyle({ weight: 3, opacity: 1 }); hit.getElement() && (hit.getElement().style.cursor = 'pointer'); });
+    hit.on('mouseout',  () => { pl.setStyle({ weight: 1.8, opacity: 0.75 }); });
+  }
+
+  setTimeout(() => {
+    const el = pl.getElement();
+    if (el) {
+      el.style.strokeDashoffset = '0';
+      el.style.animation = animClass === 'animated-route-2'
+        ? 'routeDash2 1.8s linear infinite'
+        : 'routeDash 1.2s linear infinite';
+    }
+  }, 100);
+
+  return { base, pl, hit };
+}
+
+// ── DATOS DE RUTAS ───────────────────────────
+const RUTAS_DATA = [
+  {
+    nombre: "Ruta del Acero",
+    desde: "Nueva Kashar", hasta: "Fuerte Drelm",
+    peligro: "MEDIO",
+    dias: "3–4 días",
+    transporte: true,
+    transporteDesc: "Convoy armado disponible (precio elevado)",
+    desc: "La ruta principal entre los dos asentamientos más grandes. Cruza terreno abierto expuesto a hordas migratorias. Recomendable viajar en grupo.",
+  },
+  {
+    nombre: "Camino del Vigía",
+    desde: "Nueva Kashar", hasta: "Torre de Vigía 7",
+    peligro: "BAJO",
+    dias: "1–2 días",
+    transporte: false,
+    transporteDesc: "Sin transporte organizado",
+    desc: "Ruta por el norte, relativamente despejada. La Horda Errante del Norte puede interceptar el paso según su trayectoria. Se aconseja exploración previa.",
+  },
+];
+
+// Ruta 1: Nueva Kashar → Fuerte Drelm
+const ruta1pts = bezierPoints(380, 310, 560, 430, 600, 720, 40);
+crearRutaCurva(ruta1pts, '#c8a84b', '8 6', 'animated-route', RUTAS_DATA[0]);
+
+// Ruta 2: Nueva Kashar → Torre de Vigía 7
+const ruta2pts = bezierPoints(380, 310, 220, 390, 250, 550, 40);
+crearRutaCurva(ruta2pts, '#4baec8', '4 8', 'animated-route-2', RUTAS_DATA[1]);
+
+// ── POPUP DE RUTA ────────────────────────────
+function showRoutePopup(r) {
+  const dangerClass = { 'BAJO': 'danger-bajo', 'MEDIO': 'danger-medio', 'ALTO': 'danger-alto', 'CRÍTICO': 'danger-critico' }[r.peligro] || 'danger-medio';
+  document.getElementById('routePopupTitle').textContent = `🛤 ${r.nombre}`;
+  document.getElementById('routePopupBody').innerHTML = `
+    <div class="route-stat"><span>Trayecto</span><span>${r.desde} - ${r.hasta}</span></div>
+    <div class="route-stat"><span>Duración</span><span>${r.dias}</span></div>
+    <div class="route-stat"><span>Peligro</span><span><span class="route-danger-badge ${dangerClass}">${r.peligro}</span></span></div>
+    <div class="route-stat"><span>Transporte</span><span class="${r.transporte ? 'transporte-si' : 'transporte-no'}">${r.transporte ? '✓ Disponible' : '✕ No disponible'}</span></div>
+    ${r.transporte ? `<div class="route-stat"><span>Tipo</span><span>${r.transporteDesc}</span></div>` : ''}
+    <div class="route-desc">${r.desc}</div>
+  `;
+  document.getElementById('routePopupOverlay').classList.remove('hidden');
+}
+
+function closeRoutePopup() {
+  document.getElementById('routePopupOverlay').classList.add('hidden');
+}
+document.getElementById('routePopupClose').addEventListener('click', closeRoutePopup);
+document.getElementById('routePopupOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('routePopupOverlay')) closeRoutePopup();
+});
+
+
+// ── HORDAS DE ZOMBIES (capa permanente, no se puede desactivar) ──
+const HORDAS = [
+  { nombre: "Horda del Cinturón Industrial", y: 530, x: 365, base: 300, desc: "Masa densa detectada en los alrededores del Complejo Industrial. Movimiento lento pero constante hacia el noroeste." },
+  { nombre: "Horda del Pantano",             y: 710, x: 580, base: 150, desc: "Grupo disperso atrapado en el Pantano Ácido. Movilidad reducida por el terreno. Peligro si drenan la zona." },
+  { nombre: "Horda Errante del Norte",       y: 170, x: 420, base: 80,  desc: "Grupo migratorio de origen desconocido. Trayectoria irregular. Última avistada cerca de la Torre de Vigía 7." },
+  { nombre: "Enjambre de Zona Cero",         y: 470, x: 510, base: 500, desc: "Concentración masiva en el epicentro. Se cree que la radiación ralentiza su degradación. No aproximarse." },
+  { nombre: "Manada de las Ruinas del Este", y: 355, x: 760, base: 220, desc: "Horda establecida entre los edificios derrumbados de Elvanth. Se mueven entre pisos con inusual coordinación." },
+  { nombre: "Rastro del Bunker",             y: 211, x: 127, base: 45,  desc: "Pequeño grupo merodeando los accesos al Bunker S-12. Atraídos por el ruido del generador. Vigilancia recomendada." },
+  { nombre: "Columna Sureste",               y: 820, x: 820, base: 370, desc: "Gran columna avanzando desde el cuadrante sureste. Origen desconocido. Velocidad de avance preocupante." },
+];
+
+// Inicializar tamaños con variación aleatoria inicial
+HORDAS.forEach(h => { h.current = h.base + Math.floor(Math.random() * 7 - 3); });
+
+const hordeMarkerRefs = {}; // nombre → marker leaflet
+
+function formatHordeCount(n) {
+  if (n >= 500) return `~${n}+`;
+  return `~${n}`;
+}
+
+function crearIconoHorda(h) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="position:relative">
+      <div class="horde-marker"><span class="horde-inner">🧟</span></div>
+      <span class="horde-count horde-count-animated" id="horde-cnt-${h.nombre.replace(/\s/g,'_')}">${formatHordeCount(h.current)}</span>
+    </div>`,
+    iconSize: [36, 36], iconAnchor: [18, 18], popupAnchor: [0, -20],
+  });
+}
+
+const hordeLayer = L.layerGroup().addTo(map);
+HORDAS.forEach(h => {
+  const marker = L.marker([h.y, h.x], { icon: crearIconoHorda(h), zIndexOffset: 500 });
+  marker.bindPopup(() => `
+    <div class="popup-name" style="color:#cc3333">${h.nombre}</div>
+    <div class="popup-cat" style="color:#7a6e50">☣ Horda zombie — ${formatHordeCount(h.current)} individuos</div>
+    <div class="popup-desc">${h.desc}</div>
+  `);
+  marker.addTo(hordeLayer);
+  hordeMarkerRefs[h.nombre] = marker;
+});
+
+// ── ANIMACIÓN DE CONTADORES DE HORDA ─────────
+function animateHordeCounts() {
+  HORDAS.forEach(h => {
+    const delta  = Math.floor(Math.random() * 4) + 1; // 1–4
+    const subir  = Math.random() > 0.45;
+    const newVal = h.current + (subir ? delta : -delta);
+    h.current    = Math.max(5, newVal);
+
+    const id  = 'horde-cnt-' + h.nombre.replace(/\s/g,'_');
+    const el  = document.getElementById(id);
+    if (!el) return;
+    const cls = subir ? 'up' : 'down';
+    el.textContent = formatHordeCount(h.current);
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), 350);
+  });
+}
+setInterval(animateHordeCounts, 2800);
+
+
+function crearIcono(cat) {
+  const cfg = CAT_CONFIG[cat];
+  const isHazard = cat === 'peligro';
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+      background:${cfg.color}44;border:2px solid ${cfg.color};
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 2px 14px ${cfg.color}66, inset 0 0 0 2px rgba(255,255,255,0.18), 0 2px 10px rgba(0,0,0,0.8);
+      backdrop-filter:blur(2px);
+      ${isHazard ? 'animation:hazardPulse 1.8s ease-out infinite;' : ''}
+    "><span style="transform:rotate(45deg);font-size:13px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.9))">${cfg.emoji}</span></div>`,
+    iconSize:[30,30], iconAnchor:[15,30], popupAnchor:[0,-32],
+  });
+}
+
+function crearIconoOculto() {
+  return L.divIcon({
+    className: '',
+    html: `<div class="hidden-marker-icon"><span class="hidden-marker-inner">???</span></div>`,
+    iconSize:[30,30], iconAnchor:[15,30], popupAnchor:[0,-32],
+  });
+}
+
+// ── PANEL INFO ───────────────────────────────
+let currentInfoMarker = null;
+
+function showInfo(m) {
+  currentInfoMarker = m;
+  const cfg = CAT_CONFIG[m.cat];
+  const panel = document.getElementById('infoPanel');
+  const isRevealed = !m.oculto || STATE.revealed[m.nombre];
+  const savedNote = STATE.notes[m.nombre] || '';
+
+  if (!isRevealed) {
+    // Marcador oculto — mostrar info mínima + botón que abre modal de contraseña
+    panel.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="info-name" style="color:var(--text-dim);margin:0">???</div>
+        <button style="background:transparent;border:none;color:var(--text-dim);font-size:14px;cursor:pointer;padding:4px" id="closeInfoBtn">✕</button>
+      </div>
+      <div class="info-cat">${cfg.emoji} ${cfg.label} — Sin explorar</div>
+      <div class="info-desc" style="color:var(--text-dim)">Localización clasificada. Se requiere autorización para acceder a esta información.</div>
+      <button class="reveal-btn" id="revealBtn">🔒 INTRODUCIR CONTRASEÑA</button>
+    `;
+    document.getElementById('revealBtn').addEventListener('click', () => {
+      openPasswordModal(m);
+    });
+    document.getElementById('closeInfoBtn').addEventListener('click', () => {
+      resetInfo();
+    });
+  } else {
+    let extra = '';
+    if (m.poblacion) extra += `<div class="info-stat"><span>Población</span><span>${m.poblacion}</span></div>`;
+    if (m.capacidad) extra += `<div class="info-stat"><span>Capacidad</span><span>${m.capacidad}</span></div>`;
+    if (m.nivel)     extra += `<div class="info-stat"><span>Peligro</span><span style="color:var(--danger)">${m.nivel}</span></div>`;
+    if (m.era)       extra += `<div class="info-stat"><span>Era</span><span>${m.era}</span></div>`;
+    if (m.estado)    extra += `<div class="info-stat"><span>Estado</span><span>${m.estado}</span></div>`;
+    panel.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="info-name" style="color:${cfg.color};margin:0">${m.nombre}</div>
+        <button style="background:transparent;border:none;color:var(--text-dim);font-size:14px;cursor:pointer;padding:4px" id="closeInfoBtn">✕</button>
+      </div>
+      ${m.imagen ? `<img class="info-img" src="${m.imagen}" alt="${m.nombre}"/>` : ''}
+      <div class="info-cat">${cfg.emoji} ${cfg.label}</div>
+      <div class="info-desc">${m.desc}</div>
+      ${extra ? `<hr class="info-divider">${extra}` : ''}
+      <hr class="info-divider">
+      <div class="sidebar-title" style="margin-bottom:4px">// Notas</div>
+      <textarea class="notes-area" id="notesArea" placeholder="Escribe tus apuntes sobre este lugar...">${savedNote}</textarea>
+      <button class="notes-save" id="notesSaveBtn">Guardar nota</button>
+      <div style="clear:both"></div>
+    `;
+    document.getElementById('closeInfoBtn').addEventListener('click', () => {
+      resetInfo();
+    });
+    document.getElementById('notesSaveBtn').addEventListener('click', () => {
+      const val = document.getElementById('notesArea').value;
+      STATE.notes[m.nombre] = val;
+      saveState(STATE);
+      const btn = document.getElementById('notesSaveBtn');
+      btn.textContent = '✓ Guardado';
+      btn.classList.add('notes-saved');
+      setTimeout(() => { btn.textContent = 'Guardar nota'; btn.classList.remove('notes-saved'); }, 1500);
+    });
+  }
+
+  addHistory(m);
+  try {
+    const url = new URL(location.href);
+    url.hash = `#loc=${encodeURIComponent(m.nombre)}`;
+    window.history.replaceState(null, '', url.toString());
+  } catch(e) {}
+}
+
+function resetInfo() {
+  const panel = document.getElementById('infoPanel');
+  currentInfoMarker = null;
+  panel.innerHTML = '<p class="info-empty">Haz clic en un marcador del mapa para ver su información.</p>';
+}
+
+// ── CREAR MARCADORES ─────────────────────────
+const layerGroups = {};
+const markerMap = {};
+Object.keys(CAT_CONFIG).forEach(cat => layerGroups[cat] = L.layerGroup().addTo(map));
+const counts = {};
+Object.keys(CAT_CONFIG).forEach(c => counts[c] = 0);
+
+MARCADORES.forEach(m => {
+  const cfg = CAT_CONFIG[m.cat];
+  const isRevealed = !m.oculto || STATE.revealed[m.nombre];
+  const marker = L.marker([m.y, m.x], { icon: isRevealed ? crearIcono(m.cat) : crearIconoOculto() });
+
+  // Etiqueta de ciudad debajo del icono
+  if (m.cat === 'ciudad') {
+    L.marker([m.y - 18, m.x], {
+      icon: L.divIcon({
+        className: 'city-label',
+        html: `<div style="transform:translateX(-50%);text-align:center">${m.nombre}</div>`,
+        iconAnchor: [0,0],
+      }),
+      interactive: false, zIndexOffset: -100,
+    }).addTo(layerGroups[m.cat]);
+  }
+
+  // Popup
+  marker.bindPopup(() => {
+    const rev = !m.oculto || STATE.revealed[m.nombre];
+    if (!rev) return `<div class="popup-name" style="color:var(--text-dim)">???</div><div class="popup-cat">${cfg.label}</div><div class="popup-desc">Sin explorar</div>`;
+    let statsHtml = '';
+    if (m.poblacion) statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Población</span><span style="color:#d4c89a">${m.poblacion}</span></div>`;
+    if (m.capacidad) statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Capacidad</span><span style="color:#d4c89a">${m.capacidad}</span></div>`;
+    if (m.nivel)     statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Peligro</span><span style="color:#cc2222">${m.nivel}</span></div>`;
+    if (m.era)       statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Era</span><span style="color:#d4c89a">${m.era}</span></div>`;
+    if (m.estado)    statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Estado</span><span style="color:#d4c89a">${m.estado}</span></div>`;
+    return `<div class="popup-name" style="color:${cfg.color}">${m.nombre}</div>
+      <div class="popup-cat">${cfg.label}</div>
+      <div class="popup-desc">${m.desc}</div>
+      ${statsHtml ? `<hr style="border:none;border-top:1px solid #3a3520;margin:8px 0">${statsHtml}` : ''}`;
+  });
+
+  marker.on('click', () => showInfo(m));
+  layerGroups[m.cat].addLayer(marker);
+  markerMap[m.nombre] = marker;
+  counts[m.cat]++;
+});
+
+Object.keys(counts).forEach(cat => document.getElementById(`cnt-${cat}`).textContent = counts[cat]);
+document.getElementById('markerCount').textContent = `MARCADORES: ${MARCADORES.length}`;
+
+// ── FILTROS ──────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cat = btn.dataset.cat;
+    btn.classList.toggle('active');
+    if (btn.classList.contains('active')) map.addLayer(layerGroups[cat]);
+    else map.removeLayer(layerGroups[cat]);
+  });
+});
+document.getElementById('clearSelBtn').addEventListener('click', () => {
+  document.querySelectorAll('.filter-btn.active').forEach(btn => {
+    btn.classList.remove('active');
+    map.removeLayer(layerGroups[btn.dataset.cat]);
+  });
+});
+document.getElementById('selectAllBtn').addEventListener('click', () => {
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.add('active');
+    map.addLayer(layerGroups[btn.dataset.cat]);
+  });
+});
+
+// ── BUSCADOR ─────────────────────────────────
+const searchInput   = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  searchResults.innerHTML = '';
+  if (!q) { searchResults.classList.remove('visible'); return; }
+  const matches = MARCADORES.filter(m => {
+    const rev = !m.oculto || STATE.revealed[m.nombre];
+    return rev && m.nombre.toLowerCase().includes(q);
+  });
+  if (!matches.length) { searchResults.classList.remove('visible'); return; }
+  matches.forEach(m => {
+    const cfg = CAT_CONFIG[m.cat];
+    const div = document.createElement('div');
+    div.className = 'search-result-item';
+    div.innerHTML = `<span style="color:${cfg.color}">${cfg.emoji}</span><span class="sri-name">${m.nombre}</span><span class="sri-cat">${cfg.label}</span>`;
+    div.addEventListener('click', () => {
+      searchInput.value = ''; searchResults.classList.remove('visible');
+      if (!map.hasLayer(layerGroups[m.cat])) {
+        map.addLayer(layerGroups[m.cat]);
+        const btn = document.querySelector(`.filter-btn[data-cat="${m.cat}"]`);
+        if (btn) btn.classList.add('active');
+      }
+      const marker = markerMap[m.nombre];
+      if (marker) { map.setView(marker.getLatLng(), 1); marker.openPopup(); }
+      showInfo(m);
+    });
+    searchResults.appendChild(div);
+  });
+  searchResults.classList.add('visible');
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.header-search') && !e.target.closest('.search-results'))
+    searchResults.classList.remove('visible');
+});
+
+// ── SIDEBAR COLLAPSIBLE ───────────────────────
+const sidebar   = document.getElementById('sidebar');
+const toggleBtn = document.getElementById('sidebarToggle');
+const SIDEBAR_WIDTH = sidebar.offsetWidth; // lee el ancho real del CSS (280px)
+
+function updateTogglePos() {
+  toggleBtn.style.left = sidebar.classList.contains('collapsed') ? '0px' : SIDEBAR_WIDTH + 'px';
+}
+updateTogglePos();
+
+toggleBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('collapsed');
+  toggleBtn.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+  updateTogglePos();
+  setTimeout(() => map.invalidateSize(), 260);
+});
+
+// ── NIEBLA DE GUERRA ─────────────────────────
+const fogCanvas = document.getElementById('fogCanvas');
+const fogCtx    = fogCanvas.getContext('2d');
+let fogActive   = false;
+
+function drawFog() {
+  if (!fogActive) return;
+  const mapEl = document.getElementById('map');
+  fogCanvas.width  = mapEl.offsetWidth;
+  fogCanvas.height = mapEl.offsetHeight;
+  fogCtx.clearRect(0, 0, fogCanvas.width, fogCanvas.height);
+  fogCtx.fillStyle = 'rgba(10,10,7,0.82)';
+  fogCtx.fillRect(0, 0, fogCanvas.width, fogCanvas.height);
+  fogCtx.globalCompositeOperation = 'destination-out';
+  MARCADORES.forEach(m => {
+    if (m.oculto && !STATE.revealed[m.nombre]) return;
+    const pt = map.latLngToContainerPoint([m.y, m.x]);
+    const radius = 55 + (m.cat === 'ciudad' ? 30 : 0);
+    const grad = fogCtx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, radius);
+    grad.addColorStop(0,   'rgba(0,0,0,1)');
+    grad.addColorStop(0.6, 'rgba(0,0,0,0.7)');
+    grad.addColorStop(1,   'rgba(0,0,0,0)');
+    fogCtx.fillStyle = grad;
+    fogCtx.beginPath();
+    fogCtx.arc(pt.x, pt.y, radius, 0, Math.PI * 2);
+    fogCtx.fill();
+  });
+  fogCtx.globalCompositeOperation = 'source-over';
+}
+map.on('move', drawFog);
+map.on('zoom', drawFog);
+document.getElementById('fogToggle').addEventListener('click', function() {
+  fogActive = !fogActive;
+  this.classList.toggle('on', fogActive);
+  fogCanvas.classList.toggle('hidden', !fogActive);
+  if (fogActive) drawFog();
+});
+
+// ── UNLOCK POPUP ─────────────────────────────
+function showUnlockPopup(m) {
+  const cfg = CAT_CONFIG[m.cat];
+  let statsHtml = '';
+  if (m.poblacion) statsHtml += `<div class="unlock-stat"><span>Población</span><span>${m.poblacion}</span></div>`;
+  if (m.capacidad) statsHtml += `<div class="unlock-stat"><span>Capacidad</span><span>${m.capacidad}</span></div>`;
+  if (m.nivel)     statsHtml += `<div class="unlock-stat"><span>Peligro</span><span style="color:var(--danger)">${m.nivel}</span></div>`;
+  if (m.era)       statsHtml += `<div class="unlock-stat"><span>Era</span><span>${m.era}</span></div>`;
+  if (m.estado)    statsHtml += `<div class="unlock-stat"><span>Estado</span><span>${m.estado}</span></div>`;
+
+  document.getElementById('unlockBody').innerHTML = `
+    <div class="unlock-loc-name" style="color:${cfg.color}">${m.nombre}</div>
+    <div class="unlock-loc-cat">${cfg.emoji} ${cfg.label}</div>
+    <div class="unlock-desc">${m.desc}</div>
+    ${statsHtml ? `<hr class="unlock-divider">${statsHtml}` : ''}
+    <div class="unlock-footer">
+      <button class="unlock-continue-btn" id="unlockContinueBtn">▶ CONTINUAR</button>
+    </div>
+  `;
+  document.getElementById('unlockOverlay').classList.remove('hidden');
+  document.getElementById('unlockContinueBtn').addEventListener('click', closeUnlockPopup);
+}
+
+function closeUnlockPopup() {
+  document.getElementById('unlockOverlay').classList.add('hidden');
+}
+
+document.getElementById('unlockCloseBtn').addEventListener('click', closeUnlockPopup);
+document.getElementById('unlockOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('unlockOverlay')) closeUnlockPopup();
+});
+
+// ── CONTRASEÑA PARA REVELAR ──────────────────
+// Cada marcador oculto puede tener su propia contraseña con: clave: "mipassword"
+// Si no tiene clave definida, se usa la contraseña maestra MASTER_PASSWORD
+const MASTER_PASSWORD = "1234"; // ← cambia esto por tu contraseña maestra
+
+let pwdTarget = null; // marcador que se intenta revelar
+
+function openPasswordModal(m) {
+  pwdTarget = m;
+  const overlay = document.getElementById('pwdOverlay');
+  const input   = document.getElementById('pwdInput');
+  const error   = document.getElementById('pwdError');
+  const subtitle = document.getElementById('pwdSubtitle');
+  subtitle.textContent = `Introduce la contraseña para revelar: ${m.cat === 'ciudad' ? m.cat : m.cat}`;
+  input.value = '';
+  input.classList.remove('error');
+  error.classList.remove('visible');
+  overlay.classList.remove('hidden');
+  setTimeout(() => input.focus(), 50);
+}
+
+function closePasswordModal() {
+  document.getElementById('pwdOverlay').classList.add('hidden');
+  pwdTarget = null;
+}
+
+function confirmPassword() {
+  if (!pwdTarget) return;
+  const input = document.getElementById('pwdInput');
+  const error = document.getElementById('pwdError');
+  const entered = input.value.trim();
+  const correct = pwdTarget.clave || MASTER_PASSWORD;
+  const isMaster = entered === MASTER_PASSWORD;
+
+  if (entered === correct || isMaster) {
+    STATE.revealed[pwdTarget.nombre] = true;
+    saveState(STATE);
+    const marker = markerMap[pwdTarget.nombre];
+    if (marker) marker.setIcon(crearIcono(pwdTarget.cat));
+    const revealedMarker = pwdTarget;
+    closePasswordModal();
+    showInfo(revealedMarker);
+    showUnlockPopup(revealedMarker);
+  } else {
+    input.classList.add('error');
+    error.classList.add('visible');
+    setTimeout(() => input.classList.remove('error'), 400);
+    input.value = '';
+    input.focus();
+  }
+}
+
+document.getElementById('pwdConfirm').addEventListener('click', confirmPassword);
+document.getElementById('pwdCancel').addEventListener('click', closePasswordModal);
+document.getElementById('pwdInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmPassword();
+  if (e.key === 'Escape') closePasswordModal();
+});
+
+// Escape key to close info panel
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && currentInfoMarker) {
+    resetInfo();
+  }
+});
+// Cerrar al hacer clic fuera del box
+document.getElementById('pwdOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('pwdOverlay')) closePasswordModal();
+});
+
+// Helper function for history tracking
+function addHistory(m) {
+  // Placeholder for history tracking if needed
+}
+
+// ── PERMALINK ────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+document.getElementById('permalinkStatus').addEventListener('click', () => {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(location.href)
+      .then(() => showToast('✓ Enlace copiado al portapapeles'));
+  } else {
+    showToast('⚠ Copia la URL de tu barra de direcciones');
+  }
+});
+
+// Restaurar desde permalink
+(function() {
+  const hash = location.hash;
+  if (!hash.includes('loc=')) return;
+  const name = decodeURIComponent(hash.replace('#loc=',''));
+  const m = MARCADORES.find(x => x.nombre === name);
+  if (!m) return;
+  setTimeout(() => {
+    const marker = markerMap[m.nombre];
+    if (marker) { map.setView(marker.getLatLng(), 1); marker.openPopup(); }
+    showInfo(m);
+  }, 300);
+})();
+</script>
+</body>
+</html>

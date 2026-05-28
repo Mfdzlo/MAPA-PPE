@@ -13,12 +13,12 @@
     :root {
       --bg:       #0a0a07;
       --panel:    #111109;
-      --border:   #3a3520;
-      --accent:   #c8a84b;
-      --accent2:  #e05c2a;
+      --border:   #20273a;
+      --accent:   #579ee4;
+      --accent2:  #5447c2;
       --danger:   #cc2222;
-      --text:     #d4c89a;
-      --text-dim: #7a6e50;
+      --text:     #9ab9d4;
+      --text-dim: #50627a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -140,39 +140,11 @@
     .info-stat span:last-child { color: var(--text); }
     .info-img { width: 100%; border-radius: 3px; margin-bottom: 10px; border: 1px solid var(--border); display: block; }
 
-    /* Notes textarea */
-    .notes-area {
-      width: 100%; background: #1a1a12; border: 1px solid var(--border); border-radius: 3px;
-      color: var(--text); font-family: 'Share Tech Mono', monospace; font-size: 11px;
-      padding: 7px 9px; resize: vertical; min-height: 64px; margin-top: 6px;
-      outline: none; line-height: 1.6;
-    }
-    .notes-area:focus { border-color: var(--accent); }
-    .notes-area::placeholder { color: var(--text-dim); }
-    .notes-save {
-      margin-top: 5px; padding: 4px 10px; font-size: 10px;
-      background: transparent; border: 1px solid var(--border); border-radius: 3px;
-      color: var(--text-dim); cursor: pointer; font-family: 'Share Tech Mono', monospace;
-      transition: all 0.15s; float: right;
-    }
-    .notes-save:hover { border-color: var(--accent); color: var(--accent); }
-    .notes-saved { border-color: var(--accent) !important; color: var(--accent) !important; }
-
-    /* History */
-    .history-item {
-      display: flex; align-items: center; gap: 8px; padding: 5px 0;
-      border-bottom: 1px solid var(--border); cursor: pointer; font-size: 11px;
-      color: var(--text-dim); transition: color 0.1s;
-    }
-    .history-item:last-child { border-bottom: none; }
-    .history-item:hover { color: var(--text); }
-    .history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-
     /* MAP */
     #map { flex: 1; cursor: crosshair; position: relative; }
     .leaflet-container { background: #0d0d09; }
     /* Darken only the image overlay so markers and UI stay bright */
-    .leaflet-image-layer { filter: brightness(0.65) contrast(1) !important; }
+    .leaflet-image-layer { filter: brightness(0.65) contrast(1) saturate(0.80) !important; }
     .leaflet-control-zoom a {
       background: var(--panel) !important; color: var(--accent) !important;
       border-color: var(--border) !important; font-family: 'Oswald', sans-serif !important;
@@ -251,6 +223,7 @@
       opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.3s; pointer-events: none;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
+    
     /* Password modal */
     .pwd-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.75);
@@ -285,6 +258,7 @@
     @keyframes routeDash2 {
       to { stroke-dashoffset: 24; }
     }
+
     /* Zombie horde marker */
     .horde-marker {
       width: 36px; height: 36px; border-radius: 50%;
@@ -428,7 +402,7 @@
     }
     .route-popup-title {
       font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600;
-      color: #d4c89a; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #9ab9d4; letter-spacing: 0.12em; text-transform: uppercase;
     }
     .route-popup-close {
       background: transparent; border: 1px solid var(--border); border-radius: 3px;
@@ -452,6 +426,100 @@
     .danger-critico { background: rgba(204,34,34,0.25);  color: #ff4444; border: 1px solid #ff444466; animation: blink 1.2s step-end infinite; }
     .transporte-si  { color: #4bc87a; }
     .transporte-no  { color: #cc4444; }
+
+   /* ── FOG OF WAR (Leaflet SVG overlay, se mueve con el mapa) ── */
+    .fog-svg-overlay { pointer-events: none; }
+
+    /* ── MODAL LEER MÁS ─────────────────────── */
+    .readmore-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+      z-index: 9200; display: flex; align-items: center; justify-content: center;
+      animation: fadeInOverlay 0.2s ease;
+    }
+    .readmore-overlay.hidden { display: none; }
+    .readmore-box {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 6px; width: 90%; max-width: 520px; max-height: 85vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.88);
+      animation: unlockPop 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      overflow: hidden;
+    }
+    .readmore-header {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0; background: linear-gradient(90deg, #161610, #1e1e14, #161610);
+    }
+    .readmore-header-left { display: flex; flex-direction: column; gap: 3px; }
+    .readmore-title {
+      font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .readmore-cat {
+      font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .readmore-close {
+      background: transparent; border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text-dim); font-size: 13px; width: 28px; height: 28px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; font-family: 'Share Tech Mono', monospace; flex-shrink: 0;
+    }
+    .readmore-close:hover { border-color: var(--accent2); color: var(--accent2); }
+    .readmore-body {
+      flex: 1; overflow-y: auto; padding: 18px 20px 20px;
+    }
+    .readmore-body::-webkit-scrollbar { width: 4px; }
+    .readmore-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .readmore-img { width: 100%; border-radius: 3px; margin-bottom: 14px; border: 1px solid var(--border); display: block; }
+    .readmore-desc { font-size: 12px; line-height: 1.85; color: var(--text); margin-bottom: 14px; }
+    .readmore-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+    .readmore-stat { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; color: var(--text-dim); }
+    .readmore-stat span:last-child { color: var(--text); }
+    .readmore-footer { padding: 12px 18px 14px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
+    .readmore-btn {
+      padding: 7px 18px; font-size: 11px; border-radius: 3px; cursor: pointer;
+      font-family: 'Share Tech Mono', monospace; letter-spacing: 0.08em; transition: all 0.15s;
+      background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    }
+    .readmore-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+    .readmore-btn-primary {
+      border-color: var(--accent); color: var(--accent);
+    }
+    .readmore-btn-primary:hover { background: var(--accent); color: var(--bg); }
+
+    /* Botón leer más en popup */
+    .popup-readmore-btn {
+      display: block; width: 100%; margin-top: 10px; padding: 6px 10px;
+      font-size: 10px; font-family: 'Share Tech Mono', monospace;
+      background: transparent; border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text-dim); cursor: pointer; letter-spacing: 0.08em;
+      text-align: center; transition: all 0.15s;
+    }
+    .popup-readmore-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Activity button in popups */
+    .activity-btn {
+      display: block; width: 100%; margin-top: 10px; padding: 7px 10px;
+      font-size: 11px; font-family: 'Share Tech Mono', monospace;
+      background: transparent; border: 1px solid #4bc87a; border-radius: 3px;
+      color: #4bc87a; cursor: pointer; letter-spacing: 0.08em;
+      text-align: center; text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .activity-btn:hover { background: #4bc87a; color: var(--bg); }
+
+    /* Activity button in sidebar info panel */
+    .activity-btn-info {
+      display: block; width: 100%; margin-top: 12px; padding: 8px 10px;
+      font-size: 11px; font-family: 'Share Tech Mono', monospace;
+      background: transparent; border: 1px solid #4bc87a; border-radius: 3px;
+      color: #4bc87a; cursor: pointer; letter-spacing: 0.08em;
+      text-align: center; text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .activity-btn-info:hover { background: #4bc87a; color: var(--bg); }
   </style>
 </head>
 
@@ -487,13 +555,13 @@
         <span class="filter-dot" style="background:#4baec8"></span>Puntos de interés
         <span class="filter-count" id="cnt-poi">0</span>
       </button>
+      <button class="filter-btn active" data-cat="local" style="color:#4bc87a">
+        <span class="filter-dot" style="background:#4bc87a"></span>Locales
+        <span class="filter-count" id="cnt-local">0</span>
+      </button>
       <button class="filter-btn active" data-cat="peligro" style="color:#cc2222">
         <span class="filter-dot" style="background:#cc2222"></span>Zonas de peligro
         <span class="filter-count" id="cnt-peligro">0</span>
-      </button>
-      <button class="filter-btn active" data-cat="refugio" style="color:#4bc87a">
-        <span class="filter-dot" style="background:#4bc87a"></span>Refugios
-        <span class="filter-count" id="cnt-refugio">0</span>
       </button>
       <button class="filter-btn active" data-cat="ruinas" style="color:#9b7dc8">
         <span class="filter-dot" style="background:#9b7dc8"></span>Ruinas
@@ -510,6 +578,10 @@
       <div class="fog-toggle">
         <span style="display:flex;align-items:center;gap:6px"><span>🧟</span> Hordas zombie</span>
         <div class="toggle-switch on" id="hordeToggle"></div>
+      </div>
+      <div class="fog-toggle">
+        <span style="display:flex;align-items:center;gap:6px"><span>🌫</span> Niebla de guerra</span>
+        <div class="toggle-switch on" id="fogToggle"></div>
       </div>
     </div>
 
@@ -568,51 +640,88 @@
   </div>
 </div>
 
+<div class="readmore-overlay hidden" id="readmoreOverlay">
+  <div class="readmore-box">
+    <div class="readmore-header">
+      <div class="readmore-header-left">
+        <div class="readmore-title" id="readmoreTitle"></div>
+        <div class="readmore-cat" id="readmoreCat"></div>
+      </div>
+      <button class="readmore-close" id="readmoreClose">✕</button>
+    </div>
+    <div class="readmore-body" id="readmoreBody"></div>
+    <div class="readmore-footer">
+      <button class="readmore-btn" id="readmoreCloseBtn">✕ CERRAR</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
+
 // ═══════════════════════════════════════════════
 //  CONFIGURACIÓN
 // ═══════════════════════════════════════════════
 
-const MAP_IMAGE_URL = "https://i.ibb.co/QyHWzVh/MAPA-Prueba.png";
-const MAP_WIDTH  = 2048;
-const MAP_HEIGHT = 1536;
+// MAPA IMAGEN
+const MAP_IMAGE_URL = "https://i.ibb.co/0pBvRZQS/Mapa-versi-n-antiguo.png";
+const MAP_WIDTH  = 2575;
+const MAP_HEIGHT = 1759;
 
-// oculto: true → aparece como "???" hasta que el usuario lo revela
+// LUGARES - MARCADORES
+// LUGAR OCULTO: true → aparece como "???" hasta que el usuario lo revela
 const MARCADORES = [
-  { nombre: "Nueva Kashar",      cat: "ciudad",  y: 380, x: 310, oculto: false,
-    desc: "La mayor asentamiento superviviente. Murallas de acero reciclado y un mercado negro que nunca cierra.",
-    imagen: null, poblacion: "~4.200 hab.", estado: "Controlada" },
-  { nombre: "Fuerte Drelm",      cat: "ciudad",  y: 600, x: 720, oculto: false,
-    desc: "Antigua base militar convertida en ciudad-estado. Gobierno autoritario pero agua potable garantizada.",
-    imagen: null, poblacion: "~1.800 hab.", estado: "Militarizada" },
-  { nombre: "Torre de Vigía 7",  cat: "poi",     y: 250, x: 550, oculto: false,
-    desc: "Torre de comunicaciones todavía operativa. Desde aquí se pueden interceptar señales de radio antiguas.",
+  
+  // CIUDADES
+  { nombre: "Ciudad Magna",      cat: "ciudad",  y: 511, x: 680, oculto: false,
+    desc: "La Gran Capital. Construida durante los primeros años de la Reconstrucción, poco después de La Caída, fue el primer asentamiento de la región Elysea capaz de resistir las interminables hordas infectadas por la Rabia. Lo que comenzó como una pequeña fortaleza improvisada entre ruinas y cadáveres terminó convirtiéndose en la metrópolis más avanzada y segura de toda la región.",
+    imagen: null, poblacion: "~9.600 hab.", estado: "Controlada" },
+  { nombre: "Pueblo Occilis",      cat: "ciudad",  y: 610, x: 620, oculto: false,
+    desc: "Alejado del ruido de la capital, este pueblo se ha convertido en uno de los pocos lugares donde todavía es posible sentir algo parecido a la paz. Gracias a su cercanía con el lago y por estar rodeado de bosques espesos y campos cubiertos de flores silvestres, nació como un simple punto de descanso para caravanas de supervivientes que viajaban alejarse de los grandes grupos. Los aldeanos suelen bromear diciendo que “el pueblo te adopta antes de que te des cuenta”.",
+    imagen: null, poblacion: "~600 hab.", estado: "Seguro" },
+  { nombre: "Pueblo Freya",      cat: "ciudad",  y: 582, x: 816, oculto: false,
+    desc: "x",
+    imagen: null, poblacion: "~1.000 hab.", estado: "Seguro" },
+  { nombre: "Pueblo Gades",      cat: "ciudad",  y: 413, x: 699, oculto: false,
+    desc: "x",
+    imagen: null, poblacion: "~800 hab.", estado: "Seguro" },
+
+  // LUGARES DE INTERES
+  { nombre: "Largo Argent",  cat: "poi",  y: 634, x: 681, oculto: false,
+    desc: "También conocido como el Charco de Plata, por sus aguas cristalinas. Es común ver grupos bañándose en tranquilidad. Al atardecer, el lago se tiñe de oro durante unos minutos y, bajo la luna adopta el brillo plateado. Las leyendas hablan de una criatura oculta en sus profundidades, aunque nadie ha logrado demostrar su existencia. Debido a las corrientes se dice que conecta con las aguas del río en el exterior de la muralla.",
     imagen: null, estado: "Accesible" },
-  { nombre: "Depósito Omega",    cat: "poi",     y: 700, x: 400, oculto: true,
-    desc: "Almacén preapocalíptico con suministros médicos. Sellado herméticamente. Requiere código de acceso.",
-    imagen: null, estado: "Sellado" },
-  { nombre: "Zona Cero",         cat: "peligro", y: 480, x: 500, oculto: false,
-    desc: "Epicentro de la primera detonación. Radiación letal. Nadie que haya entrado ha vuelto a salir.",
-    imagen: null, nivel: "CRÍTICO", estado: "Prohibido" },
-  { nombre: "Pantano Ácido",     cat: "peligro", y: 750, x: 600, oculto: true,
+  { nombre: "Edificio de Habitaciones",  cat: "poi",  y: 490, x: 779, oculto: false,
+    desc: "Exclusivo para los protectores de la generación actual. En él se ubican sus apartamentos personales. Además, cuentan con un servicio de cafetería. La mayoría de los diferentes trabajadores de Novaforte tienen sus hogares a los alrededores de este edificio..",
+    imagen: null, estado: "Accesible" },
+
+  // LOCALES
+  { nombre: "Guardería Pokemon",       cat: "local", y: 609, x: 581, oculto: false,
+    desc: "Una casa de gran tamaño dedicada para la crianza y el cuidado de pokemons. La gente conoce más el lugar como la casa de tejados rojos.",
+    imagen: null, servicios: "Huevos / Adopción / Liberación / Pokecubos",
+    actividad: { label: "⚡ Local Abierto", url: "https://drive.google.com/file/d/1eQ3Xawtv74PZQjSlyJKb5WSg7IW4GVKr/view?usp=sharing" } },
+    { nombre: "Tienda Pokemon",  cat: "local", y: 488, x: 640, oculto: false,
+    desc: "Pequeño local de Novaforte para la venta de productos relacionados con los pokemons.",
+    imagen: null, servicios: "Compra / Venta / Mensajería",
+    actividad: { label: "⚡ Local Abierto", url: "https://drive.google.com/file/d/1gT7xct9zXhoZFHo53tICLRbEvV4JRToD/view?usp=sharing" } },
+  { nombre: "Casino Ludovita",  cat: "local", y: 515, x: 733, oculto: false,
+    desc: "El gran casino de la capital, dirigido por la familia Blackwood. Procura tener cuidado con tus monedas.",
+    imagen: null, servicios: "Ruleta / Rifas", estado: "Bloqueado" },
+
+  // LUGARES PELIGROSOS
+  { nombre: "Caseta Abandonada", cat: "peligro", y: 459, x: 840, oculto: true,
+    desc: "Vieja vivienda de dos pisos aparentemente preparada para sobrevivir durante el apocalipsis. Actualmente abandonada y con signos de sangre y cadáveres.",
+    imagen: null, nivel: "ALTO", estado: "Prohibido", clave: "caseta" },
+  { nombre: "Pantano Ácido", cat: "peligro", y: 508, x: 884, oculto: true,
     desc: "Lluvia ácida acumulada durante años. La niebla corroe el metal en horas. Evitar a toda costa.",
     imagen: null, nivel: "ALTO", estado: "Zona roja", clave: "acido5" },
-  { nombre: "Bunker S-12",       cat: "refugio", y: 200, x: 200, oculto: false,
-    desc: "Refugio subterráneo con capacidad para 80 personas. Generador diésel y filtros de aire todavía funcionales.",
-    imagen: null, capacidad: "80 personas", estado: "Operativo" },
-  { nombre: "La Cueva del Río",  cat: "refugio", y: 650, x: 250, oculto: false,
-    desc: "Refugio natural en un sistema de cuevas junto a un río subterráneo. Agua limpia disponible.",
-    imagen: null, capacidad: "~30 personas", estado: "Libre" },
-  { nombre: "Central Nuclear “Artemis”", cat: "ruinas",  y: 262, x: 216, oculto: true,
-    desc: "Antigua planta de energía avanzada. El sistema de refrigeración falló durante el colapso. Ahora el núcleo sigue activo de forma inestable.",
-    imagen: null, era: "Pre-colapso", estado: "Inestable", clave: "artemis2711" },
-  { nombre: "Ruinas de Elvanth", cat: "ruinas",  y: 350, x: 750, oculto: false,
+
+  // RUINAS
+  { nombre: "Antigua Presa", cat: "ruinas",  y: 365, x: 196, oculto: true,
     desc: "Lo que queda de la antigua capital. Los edificios aún guardan secretos del mundo anterior.",
     imagen: null, era: "Pre-colapso", estado: "Inestable" },
-  { nombre: "Complejo Industrial",cat: "ruinas", y: 550, x: 350, oculto: true,
+  { nombre: "Ciudad Abandonada",cat: "ruinas", y: 916, x: 312, oculto: true,
     desc: "Antigua fábrica de armamento. Peligro de derrumbe. Se dice que aún quedan armas funcionales en los sótanos.",
     imagen: null, era: "Pre-colapso", estado: "Peligroso", clave: "fabrica" },
 ];
@@ -623,15 +732,16 @@ const RUTAS = [];
 
 const CAT_CONFIG = {
   ciudad:  { color: "#c8a84b", emoji: "🏙", label: "Ciudad"           },
-  poi:     { color: "#4baec8", emoji: "📡", label: "Punto de interés"  },
+  poi:     { color: "#4baec8", emoji: "📍", label: "Punto de interés"  },
   peligro: { color: "#cc2222", emoji: "☢",  label: "Zona de peligro"   },
-  refugio: { color: "#4bc87a", emoji: "⛺", label: "Refugio"           },
+  local: { color: "#4bc87a", emoji: "🏡", label: "Local"           },
   ruinas:  { color: "#9b7dc8", emoji: "🏚", label: "Ruinas"            },
 };
 
 // ═══════════════════════════════════════════════
 //  ESTADO PERSISTENTE (notas + revelados)
 // ═══════════════════════════════════════════════
+
 function loadState() {
   try { return JSON.parse(localStorage.getItem('mapaState') || '{}'); } catch(e) { return {}; }
 }
@@ -647,6 +757,7 @@ STATE.revealed = {};
 // ═══════════════════════════════════════════════
 //  MAPA
 // ═══════════════════════════════════════════════
+
 const bounds = [[0,0],[1000, 1000 * MAP_WIDTH / MAP_HEIGHT]];
 const map = L.map('map', {
   crs: L.CRS.Simple, minZoom: -2, maxZoom: 3,
@@ -691,6 +802,7 @@ function crearRutaCurva(puntos, color, dashArray, animClass, rutaData) {
     dashArray, className: animClass,
   });
   pl.addTo(routeLayer);
+
   // Zona invisible de hit más ancha para facilitar el clic
   const hit = L.polyline(puntos, { color: 'transparent', weight: 14, opacity: 0, interactive: true });
   hit.addTo(routeLayer);
@@ -718,33 +830,54 @@ function crearRutaCurva(puntos, color, dashArray, animClass, rutaData) {
 
 // ── DATOS DE RUTAS ───────────────────────────
 const RUTAS_DATA = [
+  // RUTA 1
   {
-    nombre: "Ruta del Acero",
-    desde: "Nueva Kashar", hasta: "Fuerte Drelm",
-    peligro: "MEDIO",
-    dias: "3–4 días",
-    transporte: true,
-    transporteDesc: "Convoy armado disponible (precio elevado)",
-    desc: "La ruta principal entre los dos asentamientos más grandes. Cruza terreno abierto expuesto a hordas migratorias. Recomendable viajar en grupo.",
-  },
-  {
-    nombre: "Camino del Vigía",
-    desde: "Nueva Kashar", hasta: "Torre de Vigía 7",
+    nombre: "Ruta 1",
+    desde: "Capital Magna", hasta: "Pueblo Occilis",
     peligro: "BAJO",
-    dias: "1–2 días",
-    transporte: false,
-    transporteDesc: "Sin transporte organizado",
-    desc: "Ruta por el norte, relativamente despejada. La Horda Errante del Norte puede interceptar el paso según su trayectoria. Se aconseja exploración previa.",
+    tiempo: "5-6 horas",
+    transporte: true,
+    transporteDesc: "Carros / Montura",
+    desc: "La primera ruta de la región. Cruza terreno abierto, campos de matorrales. El camino se mantiene de tierra.",
+    actividad: { label: "⚡ ACT Batalla vs Grafitera Emilia", url: "https://drive.google.com/file/d/1BD6gwfCSAjdBrgK3fV4vXS6N0igLt8YZ/view?usp=sharing" },      
+  },
+  //RUTA 2
+  {
+    nombre: "Ruta 2",
+    desde: "Capital Occilis", hasta: "Pueblo Freya",
+    peligro: "BAJO",
+    tiempo: "6-8 horas",
+    transporte: true,
+    transporteDesc: "Carros / Montura",
+    desc: "x",
+    actividad: { label: "⚡ ACT Ayudando al Criador Raphael", url: "https://drive.google.com/file/d/1ZhwvXR6dLbhP_AkAet8a13Snm9QwwtoB/view?usp=sharing" },      
+  },
+  //RUTA 3
+  {
+    nombre: "Ruta 3",
+    desde: "Capital Magna", hasta: "Pueblo Gades",
+    peligro: "BAJO",
+    tiempo: "3-4 horas",
+    transporte: true,
+    transporteDesc: "Carros de carga / Montura",
+    desc: "Ruta del sur de la capital que atraviesa campos de trigo y otros vegetales.",
+    actividad: { label: "⚡ ACT Ayudando al granjero Gus", url: "https://drive.google.com/file/d/1wHNgKjPmH-K39NYDzvLT00-6DifK5dFc/view?usp=sharing" },      
   },
 ];
 
-// Ruta 1: Nueva Kashar → Fuerte Drelm
-const ruta1pts = bezierPoints(380, 310, 560, 430, 600, 720, 40);
-crearRutaCurva(ruta1pts, '#c8a84b', '8 6', 'animated-route', RUTAS_DATA[0]);
+// Los bezierPoints (1, 2, -Inicio / 3, 4, -curvatura / 5, 6, -Final / 7 -Número de segmentos
 
-// Ruta 2: Nueva Kashar → Torre de Vigía 7
-const ruta2pts = bezierPoints(380, 310, 220, 390, 250, 550, 40);
-crearRutaCurva(ruta2pts, '#4baec8', '4 8', 'animated-route-2', RUTAS_DATA[1]);
+// Ruta 1: Ciudad Magna → Pueblo Occilis
+const ruta1pts = bezierPoints(511, 680, 543, 631, 610, 620, 20);
+crearRutaCurva(ruta1pts, '#579ee4', '8 6', 'animated-route', RUTAS_DATA[0]);
+
+// Ruta 2: Pueblo Occilis → Pueblo Freya
+const ruta2pts = bezierPoints(610, 620, 630, 731, 582, 816, 20);
+crearRutaCurva(ruta2pts, '#579ee4', '6 8', 'animated-route-2', RUTAS_DATA[1]);
+
+// Ruta 3: Ciudad Magna → Pueblo Gades
+const ruta3pts = bezierPoints(511, 680, 440, 669, 413, 699, 20);
+crearRutaCurva(ruta3pts, '#579ee4', '8 6', 'animated-route-2', RUTAS_DATA[2]);
 
 // ── POPUP DE RUTA ────────────────────────────
 function showRoutePopup(r) {
@@ -752,11 +885,12 @@ function showRoutePopup(r) {
   document.getElementById('routePopupTitle').textContent = `🛤 ${r.nombre}`;
   document.getElementById('routePopupBody').innerHTML = `
     <div class="route-stat"><span>Trayecto</span><span>${r.desde} - ${r.hasta}</span></div>
-    <div class="route-stat"><span>Duración</span><span>${r.dias}</span></div>
+    <div class="route-stat"><span>Duración</span><span>${r.tiempo}</span></div>
     <div class="route-stat"><span>Peligro</span><span><span class="route-danger-badge ${dangerClass}">${r.peligro}</span></span></div>
     <div class="route-stat"><span>Transporte</span><span class="${r.transporte ? 'transporte-si' : 'transporte-no'}">${r.transporte ? '✓ Disponible' : '✕ No disponible'}</span></div>
     ${r.transporte ? `<div class="route-stat"><span>Tipo</span><span>${r.transporteDesc}</span></div>` : ''}
     <div class="route-desc">${r.desc}</div>
+    ${r.actividad ? `<a class="activity-btn-info" href="${r.actividad.url}" target="_blank" rel="noopener">${r.actividad.label}</a>` : ''}
   `;
   document.getElementById('routePopupOverlay').classList.remove('hidden');
 }
@@ -770,15 +904,10 @@ document.getElementById('routePopupOverlay').addEventListener('click', e => {
 });
 
 
-// ── HORDAS DE ZOMBIES (capa permanente, no se puede desactivar) ──
+// ── HORDAS DE ZOMBIES ──
 const HORDAS = [
-  { nombre: "Horda del Cinturón Industrial", y: 530, x: 365, base: 300, desc: "Masa densa detectada en los alrededores del Complejo Industrial. Movimiento lento pero constante hacia el noroeste." },
-  { nombre: "Horda del Pantano",             y: 710, x: 580, base: 150, desc: "Grupo disperso atrapado en el Pantano Ácido. Movilidad reducida por el terreno. Peligro si drenan la zona." },
-  { nombre: "Horda Errante del Norte",       y: 170, x: 420, base: 80,  desc: "Grupo migratorio de origen desconocido. Trayectoria irregular. Última avistada cerca de la Torre de Vigía 7." },
-  { nombre: "Enjambre de Zona Cero",         y: 470, x: 510, base: 500, desc: "Concentración masiva en el epicentro. Se cree que la radiación ralentiza su degradación. No aproximarse." },
-  { nombre: "Manada de las Ruinas del Este", y: 355, x: 760, base: 220, desc: "Horda establecida entre los edificios derrumbados de Elvanth. Se mueven entre pisos con inusual coordinación." },
-  { nombre: "Rastro del Bunker",             y: 211, x: 127, base: 45,  desc: "Pequeño grupo merodeando los accesos al Bunker S-12. Atraídos por el ruido del generador. Vigilancia recomendada." },
-  { nombre: "Columna Sureste",               y: 820, x: 820, base: 370, desc: "Gran columna avanzando desde el cuadrante sureste. Origen desconocido. Velocidad de avance preocupante." },
+  { nombre: "Grupo errante",                 y: 454, x: 853, base: 6,  desc: "Individuos sueltos que rondan la zona. Comportamiento tranquilo y signos de desgaste." },
+  { nombre: "Columna Sureste",               y: 873, x: 50, base: 2500, desc: "Rabiosos del exterior. Número elevado. Atacan por rachas. Velocidad y fuerza preocupante." },
 ];
 
 // Inicializar tamaños con variación aleatoria inicial
@@ -807,7 +936,7 @@ HORDAS.forEach(h => {
   const marker = L.marker([h.y, h.x], { icon: crearIconoHorda(h), zIndexOffset: 500 });
   marker.bindPopup(() => `
     <div class="popup-name" style="color:#cc3333">${h.nombre}</div>
-    <div class="popup-cat" style="color:#7a6e50">☣ Horda zombie — ${formatHordeCount(h.current)} individuos</div>
+    <div class="popup-cat" style="color:#50627a">☣ Horda zombie — ${formatHordeCount(h.current)} individuos</div>
     <div class="popup-desc">${h.desc}</div>
   `);
   marker.addTo(hordeLayer);
@@ -888,7 +1017,7 @@ function showInfo(m) {
   } else {
     let extra = '';
     if (m.poblacion) extra += `<div class="info-stat"><span>Población</span><span>${m.poblacion}</span></div>`;
-    if (m.capacidad) extra += `<div class="info-stat"><span>Capacidad</span><span>${m.capacidad}</span></div>`;
+    if (m.servicios) extra += `<div class="info-stat"><span>Servicios</span><span>${m.servicios}</span></div>`;
     if (m.nivel)     extra += `<div class="info-stat"><span>Peligro</span><span style="color:var(--danger)">${m.nivel}</span></div>`;
     if (m.era)       extra += `<div class="info-stat"><span>Era</span><span>${m.era}</span></div>`;
     if (m.estado)    extra += `<div class="info-stat"><span>Estado</span><span>${m.estado}</span></div>`;
@@ -901,6 +1030,7 @@ function showInfo(m) {
       <div class="info-cat">${cfg.emoji} ${cfg.label}</div>
       <div class="info-desc">${m.desc}</div>
       ${extra ? `<hr class="info-divider">${extra}` : ''}
+      ${m.actividad ? `<a class="activity-btn-info" href="${m.actividad.url}" target="_blank" rel="noopener">${m.actividad.label}</a>` : ''}
     `;
     document.getElementById('closeInfoBtn').addEventListener('click', () => {
       resetInfo();
@@ -935,7 +1065,7 @@ MARCADORES.forEach(m => {
 
   // Etiqueta de ciudad debajo del icono
   if (m.cat === 'ciudad') {
-    L.marker([m.y - 18, m.x], {
+    L.marker([m.y - 15, m.x], {
       icon: L.divIcon({
         className: 'city-label',
         html: `<div style="transform:translateX(-50%);text-align:center">${m.nombre}</div>`,
@@ -959,14 +1089,21 @@ MARCADORES.forEach(m => {
     }
     let statsHtml = '';
     if (m.poblacion) statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Población</span><span style="color:#d4c89a">${m.poblacion}</span></div>`;
-    if (m.capacidad) statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Capacidad</span><span style="color:#d4c89a">${m.capacidad}</span></div>`;
+    if (m.servicios) statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Servicios</span><span style="color:#d4c89a">${m.servicios}</span></div>`;
     if (m.nivel)     statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Peligro</span><span style="color:#cc2222">${m.nivel}</span></div>`;
     if (m.era)       statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Era</span><span style="color:#d4c89a">${m.era}</span></div>`;
     if (m.estado)    statsHtml += `<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;color:#7a6e50"><span>Estado</span><span style="color:#d4c89a">${m.estado}</span></div>`;
+    const readBtnId = 'readmore-popup-' + m.nombre.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+    setTimeout(() => {
+      const btn = document.getElementById(readBtnId);
+      if (btn) btn.addEventListener('click', () => { marker.closePopup(); openReadMore(m); });
+    }, 50);
     return `<div class="popup-name" style="color:${cfg.color}">${m.nombre}</div>
       <div class="popup-cat">${cfg.label}</div>
-      <div class="popup-desc">${m.desc}</div>
-      ${statsHtml ? `<hr style="border:none;border-top:1px solid #3a3520;margin:8px 0">${statsHtml}` : ''}`;
+      <div class="popup-desc">${m.desc.length > 90 ? m.desc.slice(0,90)+'…' : m.desc}</div>
+      ${statsHtml ? `<hr style="border:none;border-top:1px solid #3a3520;margin:8px 0">${statsHtml}` : ''}
+      ${m.actividad ? `<a class="activity-btn" href="${m.actividad.url}" target="_blank" rel="noopener">${m.actividad.label}</a>` : ''}
+      <button id="${readBtnId}" class="popup-readmore-btn">📖 LEER MÁS</button>`;
   });
 
   marker.on('click', () => showInfo(m));
@@ -1054,6 +1191,106 @@ toggleBtn.addEventListener('click', () => {
   setTimeout(() => map.invalidateSize(), 260);
 });
 
+// ═══════════════════════════════════════════════
+//  NIEBLA DE GUERRA — Leaflet SVG Overlay
+//  (se mueve y escala con el mapa de forma nativa)
+// ═══════════════════════════════════════════════
+//
+//  Añade o edita zonas en FOG_ZONES con coordenadas [y, x]
+//  (el mismo sistema que los marcadores: LAT/LNG del display inferior).
+//
+const FOG_ZONES = [
+  {
+    nombre: "Zona Inexplorada Noroeste",
+    puntos: [
+      [0,   0  ],
+      [0,   380 ],
+      [160, 340 ],
+      [200, 200 ],
+      [150, 0  ],
+    ]
+  },
+];
+
+// Creamos un SVGOverlay de Leaflet que cubre todos los bounds del mapa.
+// Al ser un overlay nativo, Leaflet lo proyecta y escala automáticamente.
+const fogBounds = bounds; // mismo bounds que el mapa completo
+
+// Construimos el SVG inicial (sin tamaño real todavía, Leaflet lo gestiona)
+const fogNS = 'http://www.w3.org/2000/svg';
+const fogSVGEl = document.createElementNS(fogNS, 'svg');
+fogSVGEl.setAttribute('xmlns', fogNS);
+fogSVGEl.setAttribute('viewBox', `0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`);
+// Serializar a string para crear el SvgOverlay
+function buildFogSVGString() {
+  // viewBox coincide con el espacio de coordenadas del mapa (0..MAP_WIDTH, 0..MAP_HEIGHT)
+  // Las coordenadas de los polígonos son [lat(y), lng(x)] → en el viewBox [x, y] = [lng, lat]
+  const turbId = 'fogTurb';
+  const blurId = 'fogBlur';
+  const animDur = 18; // segundos de ciclo de la animación de turbulencia
+
+  let polys = '';
+  FOG_ZONES.forEach(zone => {
+    // lat → eje Y del viewBox (directo), lng → eje X
+    const pts = zone.puntos.map(([lat, lng]) => `${lng},${lat}`).join(' ');
+    // Centroide para etiqueta
+    const cx = zone.puntos.reduce((s,p) => s+p[1], 0) / zone.puntos.length;
+    const cy = zone.puntos.reduce((s,p) => s+p[0], 0) / zone.puntos.length;
+    polys += `
+      <polygon points="${pts}" fill="rgba(8,8,5,0.86)" stroke="none"/>
+      <polygon points="${pts}" fill="rgba(8,8,5,0.55)" filter="url(#${blurId})"/>
+      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle"
+        fill="rgba(122,110,80,0.55)" font-family="Oswald,sans-serif"
+        font-size="14" letter-spacing="4">— SIN EXPLORAR —</text>
+    `;
+  });
+
+  return `<svg xmlns="${fogNS}" viewBox="0 0 ${MAP_WIDTH} ${MAP_HEIGHT}">
+    <defs>
+      <filter id="${blurId}" x="-30%" y="-30%" width="160%" height="160%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="3" seed="7" result="noise">
+          <animate attributeName="baseFrequency"
+            values="0.012 0.018;0.016 0.022;0.010 0.015;0.014 0.020;0.012 0.018"
+            dur="${animDur}s" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+        <feGaussianBlur in="displaced" stdDeviation="16"/>
+      </filter>
+      <filter id="${turbId}" x="-30%" y="-30%" width="160%" height="160%">
+        <feTurbulence type="turbulence" baseFrequency="0.008 0.011" numOctaves="4" seed="3" result="noise">
+          <animate attributeName="baseFrequency"
+            values="0.008 0.011;0.011 0.014;0.007 0.010;0.009 0.013;0.008 0.011"
+            dur="${animDur * 1.3}s" repeatCount="indefinite"/>
+          <animate attributeName="seed" values="3;7;2;9;3" dur="${animDur * 2}s" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+    <g filter="url(#${turbId})">${polys}</g>
+  </svg>`;
+}
+
+// Crear el SvgOverlay de Leaflet
+let fogOverlay = L.svgOverlay(
+  (() => {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(buildFogSVGString(), 'image/svg+xml');
+    return svgDoc.documentElement;
+  })(),
+  fogBounds,
+  { opacity: 1, interactive: false, zIndex: 450 }
+).addTo(map);
+
+// Toggle niebla
+const fogToggleBtn = document.getElementById('fogToggle');
+if (fogToggleBtn) {
+  fogToggleBtn.addEventListener('click', function() {
+    this.classList.toggle('on');
+    if (this.classList.contains('on')) map.addLayer(fogOverlay);
+    else map.removeLayer(fogOverlay);
+  });
+}
+
 // ── TOGGLE RUTAS ─────────────────────────────
 document.getElementById('routeToggle').addEventListener('click', function() {
   this.classList.toggle('on');
@@ -1073,7 +1310,7 @@ function showUnlockPopup(m) {
   const cfg = CAT_CONFIG[m.cat];
   let statsHtml = '';
   if (m.poblacion) statsHtml += `<div class="unlock-stat"><span>Población</span><span>${m.poblacion}</span></div>`;
-  if (m.capacidad) statsHtml += `<div class="unlock-stat"><span>Capacidad</span><span>${m.capacidad}</span></div>`;
+  if (m.servicios) statsHtml += `<div class="unlock-stat"><span>Servicios</span><span>${m.servicios}</span></div>`;
   if (m.nivel)     statsHtml += `<div class="unlock-stat"><span>Peligro</span><span style="color:var(--danger)">${m.nivel}</span></div>`;
   if (m.era)       statsHtml += `<div class="unlock-stat"><span>Era</span><span>${m.era}</span></div>`;
   if (m.estado)    statsHtml += `<div class="unlock-stat"><span>Estado</span><span>${m.estado}</span></div>`;
@@ -1174,6 +1411,39 @@ document.getElementById('pwdOverlay').addEventListener('click', e => {
 function addHistory(m) {
   // Placeholder for history tracking if needed
 }
+
+// ── MODAL LEER MÁS ───────────────────────────
+function openReadMore(m) {
+  const cfg = CAT_CONFIG[m.cat];
+  document.getElementById('readmoreTitle').textContent = m.nombre;
+  document.getElementById('readmoreTitle').style.color = cfg.color;
+  document.getElementById('readmoreCat').textContent = `${cfg.emoji} ${cfg.label}`;
+
+  let statsHtml = '';
+  if (m.poblacion) statsHtml += `<div class="readmore-stat"><span>Población</span><span>${m.poblacion}</span></div>`;
+  if (m.capacidad) statsHtml += `<div class="readmore-stat"><span>Capacidad</span><span>${m.capacidad}</span></div>`;
+  if (m.nivel)     statsHtml += `<div class="readmore-stat"><span>Peligro</span><span style="color:var(--danger)">${m.nivel}</span></div>`;
+  if (m.era)       statsHtml += `<div class="readmore-stat"><span>Era</span><span>${m.era}</span></div>`;
+  if (m.estado)    statsHtml += `<div class="readmore-stat"><span>Estado</span><span>${m.estado}</span></div>`;
+
+  document.getElementById('readmoreBody').innerHTML = `
+    ${m.imagen ? `<img class="readmore-img" src="${m.imagen}" alt="${m.nombre}"/>` : ''}
+    <div class="readmore-desc">${m.desc}</div>
+    ${statsHtml ? `<hr class="readmore-divider">${statsHtml}` : ''}
+    ${m.actividad ? `<a class="activity-btn" href="${m.actividad.url}" target="_blank" rel="noopener" style="margin-top:14px">${m.actividad.label}</a>` : ''}
+  `;
+  document.getElementById('readmoreOverlay').classList.remove('hidden');
+}
+
+function closeReadMore() {
+  document.getElementById('readmoreOverlay').classList.add('hidden');
+}
+
+document.getElementById('readmoreClose').addEventListener('click', closeReadMore);
+document.getElementById('readmoreCloseBtn').addEventListener('click', closeReadMore);
+document.getElementById('readmoreOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('readmoreOverlay')) closeReadMore();
+});
 
 // ── PERMALINK ────────────────────────────────
 function showToast(msg) {

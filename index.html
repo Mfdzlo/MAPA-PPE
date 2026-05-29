@@ -427,9 +427,6 @@
     .transporte-si  { color: #4bc87a; }
     .transporte-no  { color: #cc4444; }
 
-   /* ── FOG OF WAR (Leaflet SVG overlay, se mueve con el mapa) ── */
-    .fog-svg-overlay { pointer-events: none; }
-
     /* ── MODAL LEER MÁS ─────────────────────── */
     .readmore-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.72);
@@ -439,7 +436,7 @@
     .readmore-overlay.hidden { display: none; }
     .readmore-box {
       background: var(--panel); border: 1px solid var(--border);
-      border-radius: 6px; width: 90%; max-width: 520px; max-height: 85vh;
+      border-radius: 6px; width: 90%; max-width: 600px; max-height: 85vh;
       display: flex; flex-direction: column;
       box-shadow: 0 8px 48px rgba(0,0,0,0.88);
       animation: unlockPop 0.25s cubic-bezier(0.34,1.56,0.64,1);
@@ -472,12 +469,12 @@
     }
     .readmore-body::-webkit-scrollbar { width: 4px; }
     .readmore-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-    .readmore-img { width: 100%; border-radius: 3px; margin-bottom: 14px; border: 1px solid var(--border); display: block; }
-    .readmore-desc { font-size: 12px; line-height: 1.85; color: var(--text); margin-bottom: 14px; }
+    .readmore-img { width: 90%; border-radius: 3px; margin-bottom: 14px; border: 1px solid var(--border); display: block; margin-left: auto; margin-right: auto; }
+    .readmore-desc { font-size: 12px; line-height: 1.85; color: var(--text); margin-bottom: 14px; text-align: justify; }
     .readmore-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
     .readmore-stat { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; color: var(--text-dim); }
     .readmore-stat span:last-child { color: var(--text); }
-    .readmore-footer { padding: 12px 18px 14px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
+    .readmore-footer { padding: 12px 18px 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; flex-shrink: 0; }
     .readmore-btn {
       padding: 7px 18px; font-size: 11px; border-radius: 3px; cursor: pointer;
       font-family: 'Share Tech Mono', monospace; letter-spacing: 0.08em; transition: all 0.15s;
@@ -488,27 +485,63 @@
       border-color: var(--accent); color: var(--accent);
     }
     .readmore-btn-primary:hover { background: var(--accent); color: var(--bg); }
+    .pokemon-btn { border-color: #e85d9a; color: #e85d9a; }
+    .pokemon-btn:hover { background: #e85d9a; color: var(--bg); }
+    .pokemon-btn.hidden { display: none; }
+
+    /* Container for popup buttons */
+    .popup-buttons {
+      display: flex; gap: 8px; margin-top: 10px;
+    }
 
     /* Botón leer más en popup */
     .popup-readmore-btn {
-      display: block; width: 100%; margin-top: 10px; padding: 6px 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex: 1; padding: 6px 10px;
       font-size: 10px; font-family: 'Share Tech Mono', monospace;
       background: transparent; border: 1px solid var(--border); border-radius: 3px;
       color: var(--text-dim); cursor: pointer; letter-spacing: 0.08em;
-      text-align: center; transition: all 0.15s;
+      transition: all 0.15s;
     }
     .popup-readmore-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     /* Activity button in popups */
     .activity-btn {
-      display: block; width: 100%; margin-top: 10px; padding: 7px 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex: 1; padding: 7px 10px;
       font-size: 11px; font-family: 'Share Tech Mono', monospace;
       background: transparent; border: 1px solid #4bc87a; border-radius: 3px;
       color: #4bc87a; cursor: pointer; letter-spacing: 0.08em;
-      text-align: center; text-decoration: none;
+      text-decoration: none;
       transition: background 0.15s, color 0.15s;
     }
     .activity-btn:hover { background: #4bc87a; color: var(--bg); }
+
+    /* Botón local */
+    .local-btn {
+      display: flex; align-items: center; justify-content: center;
+      flex: 1; padding: 7px 10px;
+      font-size: 11px; font-family: 'Share Tech Mono', monospace;
+      background: transparent; border: 1px solid #4bc87a;
+      border-radius: 3px; color: #4bc87a;
+      cursor: pointer; letter-spacing: 0.08em;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .local-btn:hover { background: #4bc87a;   color: var(--bg); }
+
+    /* Botón documento */
+    .document-btn {
+      display: flex; align-items: center; justify-content: center;
+      flex: 1; padding: 7px 10px;
+      font-size: 11px; font-family: 'Share Tech Mono', monospace;
+      background: transparent; border: 1px solid #579ee4;
+      border-radius: 3px; color: #579ee4;
+      cursor: pointer; letter-spacing: 0.08em;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .document-btn:hover { background: #579ee4;  color: var(--bg); }
 
     /* Activity button in sidebar info panel */
     .activity-btn-info {
@@ -520,6 +553,54 @@
       transition: background 0.15s, color 0.15s;
     }
     .activity-btn-info:hover { background: #4bc87a; color: var(--bg); }
+
+    /* ── ACTIVITY POPUP MODAL ─────────────────── */
+    .activity-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      z-index: 9300; display: flex; align-items: center; justify-content: center;
+      animation: fadeInOverlay 0.25s ease;
+    }
+    .activity-overlay.hidden { display: none; }
+    .activity-box {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 6px; max-width: 90%; max-height: 90vh;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.85);
+      animation: unlockPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      overflow: auto; position: relative;
+    }
+    .activity-header {
+      background: linear-gradient(90deg, #0d1218, #111820, #0d1218);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0; position: sticky; top: 0;
+    }
+    .activity-title {
+      font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600;
+      color: #4bc87a; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .activity-close {
+      background: transparent; border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text-dim); font-size: 12px; width: 24px; height: 24px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; font-family: 'Share Tech Mono', monospace;
+      flex-shrink: 0;
+    }
+    .activity-close:hover { border-color: var(--accent2); color: var(--accent2); }
+    .activity-body {
+      padding: 16px; text-align: center;
+    }
+    .activity-image {
+      max-width: 100%; max-height: 75vh; border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .activity-body iframe {
+      width: 65vw; height: 75vh;
+      border: 1px solid var(--border); border-radius: 4px; display: block;
+    }
+    .activity-box.is-pdf {
+      width: 67vw; max-width: 70vw;
+    }
   </style>
 </head>
 
@@ -527,7 +608,7 @@
 
 <header>
   <div class="header-left">
-    <div class="header-title">MAPA <span>//</span> ZONA CERO</div>
+    <div class="header-title">MAPA <span>//</span> REGIÓN ELYSEA</div>
     <div class="header-search">
       <span style="color:var(--text-dim);font-size:13px">⌕</span>
       <input type="text" id="searchInput" placeholder="Buscar ubicación..."/>
@@ -551,13 +632,13 @@
         <span class="filter-dot" style="background:#c8a84b"></span>Ciudades
         <span class="filter-count" id="cnt-ciudad">0</span>
       </button>
-      <button class="filter-btn active" data-cat="poi" style="color:#4baec8">
-        <span class="filter-dot" style="background:#4baec8"></span>Puntos de interés
-        <span class="filter-count" id="cnt-poi">0</span>
-      </button>
       <button class="filter-btn active" data-cat="local" style="color:#4bc87a">
         <span class="filter-dot" style="background:#4bc87a"></span>Locales
         <span class="filter-count" id="cnt-local">0</span>
+      </button>
+      <button class="filter-btn active" data-cat="poi" style="color:#4baec8">
+        <span class="filter-dot" style="background:#4baec8"></span>Puntos de interés
+        <span class="filter-count" id="cnt-poi">0</span>
       </button>
       <button class="filter-btn active" data-cat="peligro" style="color:#cc2222">
         <span class="filter-dot" style="background:#cc2222"></span>Zonas de peligro
@@ -579,10 +660,6 @@
         <span style="display:flex;align-items:center;gap:6px"><span>🧟</span> Hordas zombie</span>
         <div class="toggle-switch on" id="hordeToggle"></div>
       </div>
-      <div class="fog-toggle">
-        <span style="display:flex;align-items:center;gap:6px"><span>🌫</span> Niebla de guerra</span>
-        <div class="toggle-switch on" id="fogToggle"></div>
-      </div>
     </div>
 
     <!-- SELECCIÓN -->
@@ -599,7 +676,7 @@
 </div>
 
 <div class="statusbar">
-  <span><span class="blink">▮</span> SISTEMA ACTIVO</span>
+  <span><span class="blink"><color: #cc2222>▮</color></span> SISTEMA ACTIVO</span>
   <span id="markerCount">MARCADORES: 0</span>
   <span>ZOOM: <span id="zoomLevel">—</span></span>
   <span id="permalinkStatus" style="margin-left:auto;cursor:pointer;color:var(--text-dim)">⛓ permalink</span>
@@ -651,8 +728,19 @@
     </div>
     <div class="readmore-body" id="readmoreBody"></div>
     <div class="readmore-footer">
+      <button class="readmore-btn pokemon-btn hidden" id="readmorePokemonBtn">🎴 POKÉMONS</button>
       <button class="readmore-btn" id="readmoreCloseBtn">✕ CERRAR</button>
     </div>
+  </div>
+</div>
+
+<div id="activityOverlay" class="activity-overlay hidden">
+  <div class="activity-box">
+    <div class="activity-header">
+      <div class="activity-title" id="activityTitle">⚡ ACTIVIDAD</div>
+      <button class="activity-close" id="activityCloseBtn">✕</button>
+    </div>
+    <div class="activity-body" id="activityContent"></div>
   </div>
 </div>
 
@@ -677,37 +765,54 @@ const MARCADORES = [
   // CIUDADES
   { nombre: "Ciudad Magna",      cat: "ciudad",  y: 511, x: 680, oculto: false,
     desc: "La Gran Capital. Construida durante los primeros años de la Reconstrucción, poco después de La Caída, fue el primer asentamiento de la región Elysea capaz de resistir las interminables hordas infectadas por la Rabia. Lo que comenzó como una pequeña fortaleza improvisada entre ruinas y cadáveres terminó convirtiéndose en la metrópolis más avanzada y segura de toda la región.",
-    imagen: null, poblacion: "~9.600 hab.", estado: "Controlada" },
-  { nombre: "Pueblo Occilis",      cat: "ciudad",  y: 610, x: 620, oculto: false,
-    desc: "Alejado del ruido de la capital, este pueblo se ha convertido en uno de los pocos lugares donde todavía es posible sentir algo parecido a la paz. Gracias a su cercanía con el lago y por estar rodeado de bosques espesos y campos cubiertos de flores silvestres, nació como un simple punto de descanso para caravanas de supervivientes que viajaban alejarse de los grandes grupos. Los aldeanos suelen bromear diciendo que “el pueblo te adopta antes de que te des cuenta”.",
-    imagen: null, poblacion: "~600 hab.", estado: "Seguro" },
-  { nombre: "Pueblo Freya",      cat: "ciudad",  y: 582, x: 816, oculto: false,
+    imagen: "https://drive.google.com/thumbnail?id=11t_TRr6zYS7OA8dxB8S0l6cB4UktoRtj&sz=w1000", poblacion: "~9.600 hab.", estado: "Controlada",
+    pokemons: { label: "🎴 Ver Pokémons", url: "https://drive.google.com/file/d/TU_ID/preview" } },
+
+  // PUEBLOS
+  { nombre: "Pueblo Occilis",      cat: "pueblo",  y: 610, x: 620, oculto: false,
+    desc: "Alejado del ruido de la capital, este pueblo se ha convertido en uno de los pocos lugares donde todavía es posible sentir algo parecido a la paz. Gracias a su cercanía con el lago y por estar rodeado de bosques espesos y campos cubiertos de flores silvestres, nació como un simple punto de descanso para caravanas de supervivientes que viajaban alejarse de los grandes grupos. Los aldeanos suelen bromear diciendo que el pueblo te adopta antes de que tu elijas vivir ahí.",
+    imagen: "https://drive.google.com/thumbnail?id=1Tv98wrxFy9jvwj5R_c48CfwgqEcCl0_i&sz=w1000", poblacion: "~600 hab.", estado: "Seguro" },
+  { nombre: "Pueblo Freya",      cat: "pueblo",  y: 582, x: 816, oculto: false,
     desc: "x",
-    imagen: null, poblacion: "~1.000 hab.", estado: "Seguro" },
-  { nombre: "Pueblo Gades",      cat: "ciudad",  y: 413, x: 699, oculto: false,
+    imagen: "https://drive.google.com/thumbnail?id=1MIFHGC3hIvg9X38p853mY8-dYloEB_Tf&sz=w1000", poblacion: "~1.000 hab.", estado: "Seguro" },
+  { nombre: "Pueblo Gades",      cat: "pueblo",  y: 413, x: 699, oculto: false,
     desc: "x",
-    imagen: null, poblacion: "~800 hab.", estado: "Seguro" },
+    imagen: "https://drive.google.com/thumbnail?id=1CbMsIWT6dzbxG1uXuJAUhEZ-KiHsQkoh&sz=w1000", poblacion: "~800 hab.", estado: "Seguro" },
 
   // LUGARES DE INTERES
-  { nombre: "Largo Argent",  cat: "poi",  y: 634, x: 681, oculto: false,
-    desc: "También conocido como el Charco de Plata, por sus aguas cristalinas. Es común ver grupos bañándose en tranquilidad. Al atardecer, el lago se tiñe de oro durante unos minutos y, bajo la luna adopta el brillo plateado. Las leyendas hablan de una criatura oculta en sus profundidades, aunque nadie ha logrado demostrar su existencia. Debido a las corrientes se dice que conecta con las aguas del río en el exterior de la muralla.",
-    imagen: null, estado: "Accesible" },
-  { nombre: "Edificio de Habitaciones",  cat: "poi",  y: 490, x: 779, oculto: false,
-    desc: "Exclusivo para los protectores de la generación actual. En él se ubican sus apartamentos personales. Además, cuentan con un servicio de cafetería. La mayoría de los diferentes trabajadores de Novaforte tienen sus hogares a los alrededores de este edificio..",
-    imagen: null, estado: "Accesible" },
+    // -- MAGNA ---------------------
+      { nombre: "Edificio de Habitaciones",  cat: "poi",  y: 490, x: 779, oculto: false,
+        desc: "Exclusivo para los protectores de la generación actual. En él se ubican sus apartamentos personales. Además, cuentan con un servicio de cafetería. La mayoría de los diferentes trabajadores de Novaforte tienen sus hogares a los alrededores de este edificio.",
+        imagen: "https://drive.google.com/thumbnail?id=1iqX_nY77S-GQeCAMdGL790IYsr8QJzuz&sz=w1000", estado: "Privado de Novaforte" },
+      { nombre: "Sede de Novaforte",  cat: "poi",  y: 570, x: 670, oculto: false,
+        desc: "x",
+        imagen: "https://drive.google.com/thumbnail?id=1rrL_Hqnc3JskupFTdFBY01IMcnfWk43q&sz=w1000", estado: "Privado de Novaforte" },
+      { nombre: "Gran Estadio",  cat: "poi",  y: 518, x: 693, oculto: false,
+        desc: "x",
+        imagen: "https://drive.google.com/thumbnail?id=1bi5JW9rcBj4zjYRyYEYJ0X9Abk-qhe5d&sz=w1000", estado: "Privado de Novaforte" },
+
+        // -- OCCILIS ---------------------
+      { nombre: "Lago Argent",  cat: "poi",  y: 632, x: 683, oculto: false,
+        desc: "También conocido como el Charco de Plata, por sus aguas cristalinas. Es común ver grupos bañándose en tranquilidad. Al atardecer, el lago se tiñe de oro durante unos minutos y, bajo la luna adopta el brillo plateado. Las leyendas hablan de una criatura oculta en sus profundidades, aunque nadie ha logrado demostrar su existencia. Debido a las corrientes se dice que conecta con las aguas del río en el exterior de la muralla.",
+        imagen: "https://drive.google.com/thumbnail?id=1BtvLsQ78Hg9zDIvRw-bTzwo1IDK1as-V&sz=w1000", estado: "Accesible" },
+
+      // -- FREYA ---------------------
+      { nombre: "Mercadillo de Freya",  cat: "poi",  y: 552, x: 849, oculto: false,
+        desc: "x",
+        imagen: "https://drive.google.com/thumbnail?id=1HTvGNI3hK3mrAepdaUpVIZfRh7b7NYG0&sz=w1000", estado: "Privado de Novaforte" },
 
   // LOCALES
   { nombre: "Guardería Pokemon",       cat: "local", y: 609, x: 581, oculto: false,
     desc: "Una casa de gran tamaño dedicada para la crianza y el cuidado de pokemons. La gente conoce más el lugar como la casa de tejados rojos.",
-    imagen: null, servicios: "Huevos / Adopción / Liberación / Pokecubos",
-    actividad: { label: "⚡ Local Abierto", url: "https://drive.google.com/file/d/1eQ3Xawtv74PZQjSlyJKb5WSg7IW4GVKr/view?usp=sharing" } },
+    imagen: "https://drive.google.com/thumbnail?id=10PzBb9Vb-2ggj6lbHOJbXN1rz8hEsH4b&sz=w1000", servicios: "Huevos / Adopción de pokemons <br> Liberación de pokemons / Pokecubos",
+    local: { label: "⚡ Local Abierto", url: "https://drive.google.com/file/d/1gT7xct9zXhoZFHo53tICLRbEvV4JRToD/preview" } },
     { nombre: "Tienda Pokemon",  cat: "local", y: 488, x: 640, oculto: false,
     desc: "Pequeño local de Novaforte para la venta de productos relacionados con los pokemons.",
-    imagen: null, servicios: "Compra / Venta / Mensajería",
-    actividad: { label: "⚡ Local Abierto", url: "https://drive.google.com/file/d/1gT7xct9zXhoZFHo53tICLRbEvV4JRToD/view?usp=sharing" } },
+    imagen: "https://drive.google.com/thumbnail?id=1DY6EuQNz0lvK7TAoACe9nVnbLTCT3Frj&sz=w1000", servicios: "Compra / Venta / Mensajería",
+    local: { label: "⚡ Local Abierto", url: "https://drive.google.com/file/d/1eQ3Xawtv74PZQjSlyJKb5WSg7IW4GVKr/preview" } },
   { nombre: "Casino Ludovita",  cat: "local", y: 515, x: 733, oculto: false,
     desc: "El gran casino de la capital, dirigido por la familia Blackwood. Procura tener cuidado con tus monedas.",
-    imagen: null, servicios: "Ruleta / Rifas", estado: "Bloqueado" },
+    imagen: "https://drive.google.com/thumbnail?id=17SDwY1Ps8NqpA41tx-a6kd-ED57bStld&sz=w1000", servicios: "Ruleta / Rifas", estado: "Bloqueado" },
 
   // LUGARES PELIGROSOS
   { nombre: "Caseta Abandonada", cat: "peligro", y: 459, x: 840, oculto: true,
@@ -731,11 +836,12 @@ const MARCADORES = [
 const RUTAS = [];
 
 const CAT_CONFIG = {
-  ciudad:  { color: "#c8a84b", emoji: "🏙", label: "Ciudad"           },
-  poi:     { color: "#4baec8", emoji: "📍", label: "Punto de interés"  },
-  peligro: { color: "#cc2222", emoji: "☢",  label: "Zona de peligro"   },
-  local: { color: "#4bc87a", emoji: "🏡", label: "Local"           },
-  ruinas:  { color: "#9b7dc8", emoji: "🏚", label: "Ruinas"            },
+  ciudad:  { color: "#c8a84b", emoji: "🏙", label: "Ciudad",          sidebarCat: "ciudad" },
+  pueblo:  { color: "#d4a85a", emoji: "🏘", label: "Pueblo",          sidebarCat: "ciudad" }, // mismo filtro que ciudad
+  poi:     { color: "#4baec8", emoji: "📍", label: "Punto de interés", sidebarCat: "poi"    },
+  peligro: { color: "#cc2222", emoji: "☢",  label: "Zona de peligro",  sidebarCat: "peligro"},
+  local:   { color: "#4bc87a", emoji: "🏡", label: "Local",           sidebarCat: "local"  },
+  ruinas:  { color: "#9b7dc8", emoji: "🏚", label: "Ruinas",           sidebarCat: "ruinas" },
 };
 
 // ═══════════════════════════════════════════════
@@ -839,7 +945,8 @@ const RUTAS_DATA = [
     transporte: true,
     transporteDesc: "Carros / Montura",
     desc: "La primera ruta de la región. Cruza terreno abierto, campos de matorrales. El camino se mantiene de tierra.",
-    actividad: { label: "⚡ ACT Batalla vs Grafitera Emilia", url: "https://drive.google.com/file/d/1BD6gwfCSAjdBrgK3fV4vXS6N0igLt8YZ/view?usp=sharing" },      
+    actividad: { label: "⚡ ACT Batalla vs Grafitera Emilia", url: "https://drive.google.com/thumbnail?id=1BD6gwfCSAjdBrgK3fV4vXS6N0igLt8YZ&sz=w2000" },
+    pokemons: { label: "🎴 Ver Pokémons", url: "https://drive.google.com/thumbnail?id=1cE_9niy0uA09SuqpP8M2UUbVRLuf3LRt&sz=w1000" },      
   },
   //RUTA 2
   {
@@ -850,7 +957,8 @@ const RUTAS_DATA = [
     transporte: true,
     transporteDesc: "Carros / Montura",
     desc: "x",
-    actividad: { label: "⚡ ACT Ayudando al Criador Raphael", url: "https://drive.google.com/file/d/1ZhwvXR6dLbhP_AkAet8a13Snm9QwwtoB/view?usp=sharing" },      
+    actividad: { label: "⚡ ACT Ayudando al Criador Raphael", url: "https://drive.google.com/thumbnail?id=1ZhwvXR6dLbhP_AkAet8a13Snm9QwwtoB&sz=w2000" },
+    pokemons: { label: "🎴 Ver Pokémons", url: "https://drive.google.com/thumbnail?id=1kZSjD0Teu725UwVwy2neaeEoHdlGH3WA&sz=w1000" },      
   },
   //RUTA 3
   {
@@ -861,7 +969,8 @@ const RUTAS_DATA = [
     transporte: true,
     transporteDesc: "Carros de carga / Montura",
     desc: "Ruta del sur de la capital que atraviesa campos de trigo y otros vegetales.",
-    actividad: { label: "⚡ ACT Ayudando al granjero Gus", url: "https://drive.google.com/file/d/1wHNgKjPmH-K39NYDzvLT00-6DifK5dFc/view?usp=sharing" },      
+    actividad: { label: "⚡ ACT Ayudando al granjero Gus", url: "https://drive.google.com/thumbnail?id=1wHNgKjPmH-K39NYDzvLT00-6DifK5dFc&sz=w2000" },
+    pokemons: { label: "🎴 Ver Pokémons", url: "https://drive.google.com/thumbnail?id=1Zq_M9UqeVSPPsygw_oNATPRfqHml9-JD&sz=w1000" },      
   },
 ];
 
@@ -890,9 +999,26 @@ function showRoutePopup(r) {
     <div class="route-stat"><span>Transporte</span><span class="${r.transporte ? 'transporte-si' : 'transporte-no'}">${r.transporte ? '✓ Disponible' : '✕ No disponible'}</span></div>
     ${r.transporte ? `<div class="route-stat"><span>Tipo</span><span>${r.transporteDesc}</span></div>` : ''}
     <div class="route-desc">${r.desc}</div>
-    ${r.actividad ? `<a class="activity-btn-info" href="${r.actividad.url}" target="_blank" rel="noopener">${r.actividad.label}</a>` : ''}
+    <div style="display:flex;gap:8px;margin-top:12px">
+      ${r.actividad ? `<button id="route-act-btn" class="activity-btn-info">${r.actividad.label}</button>` : ''}
+      ${r.pokemons ? `<button id="route-pokemon-btn" class="activity-btn-info">${r.pokemons.label}</button>` : ''}
+    </div>
   `;
   document.getElementById('routePopupOverlay').classList.remove('hidden');
+  
+  if (r.actividad) {
+    setTimeout(() => {
+      const btn = document.getElementById('route-act-btn');
+      if (btn) btn.addEventListener('click', () => openActivityModal(r.actividad.url, r.actividad.label));
+    }, 50);
+  }
+  
+  if (r.pokemons) {
+    setTimeout(() => {
+      const btn = document.getElementById('route-pokemon-btn');
+      if (btn) btn.addEventListener('click', () => openActivityModal(r.pokemons.url, r.pokemons.label));
+    }, 50);
+  }
 }
 
 function closeRoutePopup() {
@@ -907,7 +1033,7 @@ document.getElementById('routePopupOverlay').addEventListener('click', e => {
 // ── HORDAS DE ZOMBIES ──
 const HORDAS = [
   { nombre: "Grupo errante",                 y: 454, x: 853, base: 6,  desc: "Individuos sueltos que rondan la zona. Comportamiento tranquilo y signos de desgaste." },
-  { nombre: "Columna Sureste",               y: 873, x: 50, base: 2500, desc: "Rabiosos del exterior. Número elevado. Atacan por rachas. Velocidad y fuerza preocupante." },
+  { nombre: "Horda del norte",               y: 873, x: 50, base: 2500, desc: "Rabiosos del exterior. Número elevado. Atacan por rachas. Velocidad y fuerza preocupante." },
 ];
 
 // Inicializar tamaños con variación aleatoria inicial
@@ -946,21 +1072,39 @@ HORDAS.forEach(h => {
 // ── ANIMACIÓN DE CONTADORES DE HORDA ─────────
 function animateHordeCounts() {
   HORDAS.forEach(h => {
-    const delta  = Math.floor(Math.random() * 4) + 1; // 1–4
-    const subir  = Math.random() > 0.45;
-    const newVal = h.current + (subir ? delta : -delta);
-    h.current    = Math.max(5, newVal);
+    const delta = Math.floor(Math.random() * 4) + 1;
 
-    const id  = 'horde-cnt-' + h.nombre.replace(/\s/g,'_');
-    const el  = document.getElementById(id);
+    const min = Math.floor(h.base * 0.90);
+    const max = Math.floor(h.base * 1.10);
+
+    let subir = Math.random() > 0.45;
+
+    // evitar quedarse pegado al límite
+    if (h.current >= max) subir = false;
+    if (h.current <= min) subir = true;
+
+    let newVal = h.current + (subir ? delta : -delta);
+
+    newVal = Math.max(min, Math.min(max, newVal));
+
+    h.current = newVal;
+
+    const id = 'horde-cnt-' + h.nombre.replace(/\s/g,'_');
+    const el = document.getElementById(id);
+
     if (!el) return;
-    const cls = subir ? 'up' : 'down';
+
     el.textContent = formatHordeCount(h.current);
+
+    const cls = subir ? 'up' : 'down';
+
     el.classList.add(cls);
-    setTimeout(() => el.classList.remove(cls), 350);
+
+    setTimeout(() => {
+      el.classList.remove(cls);
+    }, 350);
   });
 }
-setInterval(animateHordeCounts, 2800);
 
 
 function crearIcono(cat) {
@@ -1021,6 +1165,7 @@ function showInfo(m) {
     if (m.nivel)     extra += `<div class="info-stat"><span>Peligro</span><span style="color:var(--danger)">${m.nivel}</span></div>`;
     if (m.era)       extra += `<div class="info-stat"><span>Era</span><span>${m.era}</span></div>`;
     if (m.estado)    extra += `<div class="info-stat"><span>Estado</span><span>${m.estado}</span></div>`;
+    const activityId = 'info-act-btn-' + m.nombre.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
     panel.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div class="info-name" style="color:${cfg.color};margin:0">${m.nombre}</div>
@@ -1030,11 +1175,30 @@ function showInfo(m) {
       <div class="info-cat">${cfg.emoji} ${cfg.label}</div>
       <div class="info-desc">${m.desc}</div>
       ${extra ? `<hr class="info-divider">${extra}` : ''}
-      ${m.actividad ? `<a class="activity-btn-info" href="${m.actividad.url}" target="_blank" rel="noopener">${m.actividad.label}</a>` : ''}
+      ${m.acciones ? `
+         <div class="popup-buttons">
+           ${m.acciones.map((a, i) => `
+             <button
+                class="${
+                  a.type === 'actividad' ? 'activity-btn' :
+                  a.type === 'local' ? 'local-btn' :
+                  'document-btn'
+                }"
+               onclick="openActivityModal('${a.url}', '${a.label}', ${a.type === 'documento' ? 'pdf' : 'image'} )"
+              >
+             ${a.label}
+            </button>
+            `).join('')}
+          </div>
+` : ''}
+      ${m.local ? `<button class="local-btn" style="margin-top:10px;width:100%" onclick="openActivityModal('${m.local.url}', '${m.local.label}')">${m.local.label}</button>` : ''}
+      ${m.actividad ? `<button class="activity-btn-info" onclick="openActivityModal('${m.actividad.url}', '${m.actividad.label}')">${m.actividad.label}</button>` : ''}
     `;
     document.getElementById('closeInfoBtn').addEventListener('click', () => {
       resetInfo();
     });
+
+    
   }
 
   addHistory(m);
@@ -1054,17 +1218,20 @@ function resetInfo() {
 // ── CREAR MARCADORES ─────────────────────────
 const layerGroups = {};
 const markerMap = {};
-Object.keys(CAT_CONFIG).forEach(cat => layerGroups[cat] = L.layerGroup().addTo(map));
+// Los layerGroups se crean por sidebarCat (los filtros visibles)
+const SIDEBAR_CATS = ['ciudad', 'poi', 'peligro', 'local', 'ruinas'];
+SIDEBAR_CATS.forEach(cat => layerGroups[cat] = L.layerGroup().addTo(map));
 const counts = {};
-Object.keys(CAT_CONFIG).forEach(c => counts[c] = 0);
+SIDEBAR_CATS.forEach(c => counts[c] = 0);
 
 MARCADORES.forEach(m => {
   const cfg = CAT_CONFIG[m.cat];
+  const scat = cfg.sidebarCat; // layer al que pertenece (pueblo → ciudad)
   const isRevealed = !m.oculto || STATE.revealed[m.nombre];
   const marker = L.marker([m.y, m.x], { icon: isRevealed ? crearIcono(m.cat) : crearIconoOculto() });
 
-  // Etiqueta de ciudad debajo del icono
-  if (m.cat === 'ciudad') {
+  // Etiqueta debajo del icono para ciudades y pueblos
+  if (m.cat === 'ciudad' || m.cat === 'pueblo') {
     L.marker([m.y - 15, m.x], {
       icon: L.divIcon({
         className: 'city-label',
@@ -1072,7 +1239,7 @@ MARCADORES.forEach(m => {
         iconAnchor: [0,0],
       }),
       interactive: false, zIndexOffset: -100,
-    }).addTo(layerGroups[m.cat]);
+    }).addTo(layerGroups[scat]);
   }
 
   // Popup
@@ -1097,19 +1264,31 @@ MARCADORES.forEach(m => {
     setTimeout(() => {
       const btn = document.getElementById(readBtnId);
       if (btn) btn.addEventListener('click', () => { marker.closePopup(); openReadMore(m); });
+      if (m.actividad) {
+        const actBtn = document.querySelector(`#popup-act-${m.nombre.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`);
+        if (actBtn) actBtn.addEventListener('click', () => { marker.closePopup(); openActivityModal(m.actividad.url, m.actividad.label); });
+      }
+      if (m.local) {
+        const localBtn = document.getElementById(`popup-local-${m.nombre.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`);
+        if (localBtn) localBtn.addEventListener('click', () => { marker.closePopup(); openActivityModal(m.local.url, m.local.label); });
+      }
     }, 50);
+    const actBtnId = 'popup-act-' + m.nombre.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
     return `<div class="popup-name" style="color:${cfg.color}">${m.nombre}</div>
       <div class="popup-cat">${cfg.label}</div>
       <div class="popup-desc">${m.desc.length > 90 ? m.desc.slice(0,90)+'…' : m.desc}</div>
       ${statsHtml ? `<hr style="border:none;border-top:1px solid #3a3520;margin:8px 0">${statsHtml}` : ''}
-      ${m.actividad ? `<a class="activity-btn" href="${m.actividad.url}" target="_blank" rel="noopener">${m.actividad.label}</a>` : ''}
-      <button id="${readBtnId}" class="popup-readmore-btn">📖 LEER MÁS</button>`;
+      <div class="popup-buttons">
+        ${m.actividad ? `<button id="${actBtnId}" class="activity-btn">${m.actividad.label}</button>` : ''}
+        ${m.local ? `<button id="popup-local-${m.nombre.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}" class="local-btn">${m.local.label}</button>` : ''}
+        <button id="${readBtnId}" class="popup-readmore-btn">📖 LEER MÁS</button>
+      </div>`;
   });
 
   marker.on('click', () => showInfo(m));
-  layerGroups[m.cat].addLayer(marker);
+  layerGroups[scat].addLayer(marker);
   markerMap[m.nombre] = marker;
-  counts[m.cat]++;
+  counts[scat]++;
 });
 
 Object.keys(counts).forEach(cat => document.getElementById(`cnt-${cat}`).textContent = counts[cat]);
@@ -1156,9 +1335,10 @@ searchInput.addEventListener('input', () => {
     div.innerHTML = `<span style="color:${cfg.color}">${cfg.emoji}</span><span class="sri-name">${m.nombre}</span><span class="sri-cat">${cfg.label}</span>`;
     div.addEventListener('click', () => {
       searchInput.value = ''; searchResults.classList.remove('visible');
-      if (!map.hasLayer(layerGroups[m.cat])) {
-        map.addLayer(layerGroups[m.cat]);
-        const btn = document.querySelector(`.filter-btn[data-cat="${m.cat}"]`);
+      if (!map.hasLayer(layerGroups[CAT_CONFIG[m.cat].sidebarCat])) {
+        const scat = CAT_CONFIG[m.cat].sidebarCat;
+        map.addLayer(layerGroups[scat]);
+        const btn = document.querySelector(`.filter-btn[data-cat="${scat}"]`);
         if (btn) btn.classList.add('active');
       }
       const marker = markerMap[m.nombre];
@@ -1190,106 +1370,6 @@ toggleBtn.addEventListener('click', () => {
   updateTogglePos();
   setTimeout(() => map.invalidateSize(), 260);
 });
-
-// ═══════════════════════════════════════════════
-//  NIEBLA DE GUERRA — Leaflet SVG Overlay
-//  (se mueve y escala con el mapa de forma nativa)
-// ═══════════════════════════════════════════════
-//
-//  Añade o edita zonas en FOG_ZONES con coordenadas [y, x]
-//  (el mismo sistema que los marcadores: LAT/LNG del display inferior).
-//
-const FOG_ZONES = [
-  {
-    nombre: "Zona Inexplorada Noroeste",
-    puntos: [
-      [0,   0  ],
-      [0,   380 ],
-      [160, 340 ],
-      [200, 200 ],
-      [150, 0  ],
-    ]
-  },
-];
-
-// Creamos un SVGOverlay de Leaflet que cubre todos los bounds del mapa.
-// Al ser un overlay nativo, Leaflet lo proyecta y escala automáticamente.
-const fogBounds = bounds; // mismo bounds que el mapa completo
-
-// Construimos el SVG inicial (sin tamaño real todavía, Leaflet lo gestiona)
-const fogNS = 'http://www.w3.org/2000/svg';
-const fogSVGEl = document.createElementNS(fogNS, 'svg');
-fogSVGEl.setAttribute('xmlns', fogNS);
-fogSVGEl.setAttribute('viewBox', `0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`);
-// Serializar a string para crear el SvgOverlay
-function buildFogSVGString() {
-  // viewBox coincide con el espacio de coordenadas del mapa (0..MAP_WIDTH, 0..MAP_HEIGHT)
-  // Las coordenadas de los polígonos son [lat(y), lng(x)] → en el viewBox [x, y] = [lng, lat]
-  const turbId = 'fogTurb';
-  const blurId = 'fogBlur';
-  const animDur = 18; // segundos de ciclo de la animación de turbulencia
-
-  let polys = '';
-  FOG_ZONES.forEach(zone => {
-    // lat → eje Y del viewBox (directo), lng → eje X
-    const pts = zone.puntos.map(([lat, lng]) => `${lng},${lat}`).join(' ');
-    // Centroide para etiqueta
-    const cx = zone.puntos.reduce((s,p) => s+p[1], 0) / zone.puntos.length;
-    const cy = zone.puntos.reduce((s,p) => s+p[0], 0) / zone.puntos.length;
-    polys += `
-      <polygon points="${pts}" fill="rgba(8,8,5,0.86)" stroke="none"/>
-      <polygon points="${pts}" fill="rgba(8,8,5,0.55)" filter="url(#${blurId})"/>
-      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle"
-        fill="rgba(122,110,80,0.55)" font-family="Oswald,sans-serif"
-        font-size="14" letter-spacing="4">— SIN EXPLORAR —</text>
-    `;
-  });
-
-  return `<svg xmlns="${fogNS}" viewBox="0 0 ${MAP_WIDTH} ${MAP_HEIGHT}">
-    <defs>
-      <filter id="${blurId}" x="-30%" y="-30%" width="160%" height="160%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="3" seed="7" result="noise">
-          <animate attributeName="baseFrequency"
-            values="0.012 0.018;0.016 0.022;0.010 0.015;0.014 0.020;0.012 0.018"
-            dur="${animDur}s" repeatCount="indefinite"/>
-        </feTurbulence>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
-        <feGaussianBlur in="displaced" stdDeviation="16"/>
-      </filter>
-      <filter id="${turbId}" x="-30%" y="-30%" width="160%" height="160%">
-        <feTurbulence type="turbulence" baseFrequency="0.008 0.011" numOctaves="4" seed="3" result="noise">
-          <animate attributeName="baseFrequency"
-            values="0.008 0.011;0.011 0.014;0.007 0.010;0.009 0.013;0.008 0.011"
-            dur="${animDur * 1.3}s" repeatCount="indefinite"/>
-          <animate attributeName="seed" values="3;7;2;9;3" dur="${animDur * 2}s" repeatCount="indefinite"/>
-        </feTurbulence>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/>
-      </filter>
-    </defs>
-    <g filter="url(#${turbId})">${polys}</g>
-  </svg>`;
-}
-
-// Crear el SvgOverlay de Leaflet
-let fogOverlay = L.svgOverlay(
-  (() => {
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(buildFogSVGString(), 'image/svg+xml');
-    return svgDoc.documentElement;
-  })(),
-  fogBounds,
-  { opacity: 1, interactive: false, zIndex: 450 }
-).addTo(map);
-
-// Toggle niebla
-const fogToggleBtn = document.getElementById('fogToggle');
-if (fogToggleBtn) {
-  fogToggleBtn.addEventListener('click', function() {
-    this.classList.toggle('on');
-    if (this.classList.contains('on')) map.addLayer(fogOverlay);
-    else map.removeLayer(fogOverlay);
-  });
-}
 
 // ── TOGGLE RUTAS ─────────────────────────────
 document.getElementById('routeToggle').addEventListener('click', function() {
@@ -1432,6 +1512,18 @@ function openReadMore(m) {
     ${statsHtml ? `<hr class="readmore-divider">${statsHtml}` : ''}
     ${m.actividad ? `<a class="activity-btn" href="${m.actividad.url}" target="_blank" rel="noopener" style="margin-top:14px">${m.actividad.label}</a>` : ''}
   `;
+
+  // Botón Pokémons: visible solo si el marcador tiene la propiedad `pokemons`
+  const pokemonBtn = document.getElementById('readmorePokemonBtn');
+  if (m.pokemons) {
+    pokemonBtn.classList.remove('hidden');
+    pokemonBtn._url   = m.pokemons.url;
+    pokemonBtn._label = m.pokemons.label || '🎴 POKÉMONS';
+    pokemonBtn.textContent = m.pokemons.label || '🎴 POKÉMONS';
+  } else {
+    pokemonBtn.classList.add('hidden');
+  }
+
   document.getElementById('readmoreOverlay').classList.remove('hidden');
 }
 
@@ -1441,8 +1533,59 @@ function closeReadMore() {
 
 document.getElementById('readmoreClose').addEventListener('click', closeReadMore);
 document.getElementById('readmoreCloseBtn').addEventListener('click', closeReadMore);
+document.getElementById('readmorePokemonBtn').addEventListener('click', function() {
+  if (this._url) openActivityModal(this._url, this._label);
+});
 document.getElementById('readmoreOverlay').addEventListener('click', e => {
   if (e.target === document.getElementById('readmoreOverlay')) closeReadMore();
+});
+
+// ── ACTIVITY IMAGE POPUP ────────────────────
+function convertGoogleDriveUrl(url, type) {
+  const match = url.match(/\/d\/([\w-]+)/);
+  if (!match) return url;
+  const id = match[1];
+  if (type === 'pdf') {
+    return `https://drive.google.com/file/d/${id}/preview`;
+  }
+  return `https://drive.google.com/uc?export=view&id=${id}`;
+}
+
+function openActivityModal(url, label, type = 'image') {
+  // Auto-detectar PDF por extensión o por URL /preview
+  const isPdf = type === 'pdf'
+    || url.toLowerCase().includes('.pdf')
+    || url.includes('/preview');
+
+  const overlay = document.getElementById('activityOverlay');
+  const content = document.getElementById('activityContent');
+  const box     = overlay.querySelector('.activity-box');
+  const title   = document.getElementById('activityTitle');
+
+  title.textContent = label || '⚡ ACTIVIDAD';
+
+  if (isPdf) {
+    box.classList.add('is-pdf');
+    const embedUrl = convertGoogleDriveUrl(url, 'pdf');
+    content.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+  } else {
+    box.classList.remove('is-pdf');
+    content.innerHTML = `<img class="activity-image" src="${convertGoogleDriveUrl(url, 'image')}" alt="${label}">`;
+  }
+
+  overlay.classList.remove('hidden');
+}
+
+function closeActivityModal() {
+  const overlay = document.getElementById('activityOverlay');
+  overlay.classList.add('hidden');
+  overlay.querySelector('.activity-box').classList.remove('is-pdf');
+  document.getElementById('activityContent').innerHTML = '';
+}
+
+document.getElementById('activityCloseBtn').addEventListener('click', closeActivityModal);
+document.getElementById('activityOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('activityOverlay')) closeActivityModal();
 });
 
 // ── PERMALINK ────────────────────────────────
